@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import { useFeaturedProducts, useNewProducts, useCategories } from '@/hooks/useProducts';
+import { ProductGrid } from '@/components/ui/ProductGrid';
 
 export function HomePage() {
+  const featured = useFeaturedProducts();
+  const novidades = useNewProducts();
+  const categorias = useCategories();
+
   return (
     <>
       {/* Hero */}
@@ -58,13 +65,85 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Placeholder de conteúdo (Passo 2) */}
-      <section className="container-rl py-20 text-center">
-        <p className="eyebrow">Em breve</p>
-        <h2 className="mt-2 font-display text-3xl font-semibold">Vitrine de produtos</h2>
-        <p className="mx-auto mt-3 max-w-md text-carvao/60">
-          A home completa com destaques, novidades e categorias chega no próximo passo.
-        </p>
+      {/* Categorias */}
+      <section className="container-rl py-16">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="eyebrow">Navegue por</p>
+            <h2 className="mt-1 font-display text-3xl font-semibold">Categorias</h2>
+          </div>
+          <Link to="/categorias" className="hidden items-center gap-1 text-sm font-medium text-rosa-500 hover:gap-2 sm:flex">
+            Ver todas <ArrowRight className="h-4 w-4 transition-all" />
+          </Link>
+        </div>
+
+        {categorias.isLoading ? (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="skeleton aspect-square rounded-xl2" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {categorias.data?.map((cat) => (
+              <Link
+                key={cat.id}
+                to={`/produtos?categoria=${cat.id}`}
+                className="group flex aspect-square flex-col items-center justify-center rounded-xl2 bg-rosa-50 p-4 text-center transition-colors hover:bg-rosa-500"
+              >
+                <span className="font-display text-lg font-semibold text-rosa-500 transition-colors group-hover:text-white">
+                  {cat.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Destaques */}
+      <section className="container-rl py-8">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="eyebrow">Seleção especial</p>
+            <h2 className="mt-1 font-display text-3xl font-semibold">Destaques da semana</h2>
+          </div>
+          <Link to="/produtos?destaque=1" className="hidden items-center gap-1 text-sm font-medium text-rosa-500 hover:gap-2 sm:flex">
+            Ver mais <ArrowRight className="h-4 w-4 transition-all" />
+          </Link>
+        </div>
+        <ProductGrid products={featured.data} loading={featured.isLoading} skeletonCount={4} />
+      </section>
+
+      {/* Banner do cupom */}
+      <section className="container-rl py-16">
+        <div className="overflow-hidden rounded-xl2 bg-carvao px-8 py-12 text-center sm:px-16 sm:py-16">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dourado-300">
+            ✦ Primeira compra
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold text-creme sm:text-4xl">
+            Ganhe 10% de desconto
+          </h2>
+          <p className="mt-3 text-creme/70">
+            Use o cupom <span className="font-semibold text-dourado-300">BEMVINDA10</span> em compras acima de R$ 100.
+          </p>
+          <Link to="/produtos" className="btn-gold mt-8">
+            Quero aproveitar
+          </Link>
+        </div>
+      </section>
+
+      {/* Novidades */}
+      <section className="container-rl py-8 pb-20">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="eyebrow">Acabou de chegar</p>
+            <h2 className="mt-1 font-display text-3xl font-semibold">Novidades</h2>
+          </div>
+          <Link to="/produtos" className="hidden items-center gap-1 text-sm font-medium text-rosa-500 hover:gap-2 sm:flex">
+            Ver tudo <ArrowRight className="h-4 w-4 transition-all" />
+          </Link>
+        </div>
+        <ProductGrid products={novidades.data} loading={novidades.isLoading} skeletonCount={4} />
       </section>
     </>
   );
