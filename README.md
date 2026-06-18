@@ -92,7 +92,7 @@ O frontend usa proxy para `/api` → `http://localhost:3333` (configurável em `
 
 - [x] **Passo 1** — Fundação do frontend (estrutura, identidade visual, layout base, conexão com API)
 - [x] **Passo 2** — Home completa (vitrine, destaques, novidades, categorias)
-- [ ] **Passo 3** — Catálogo e página de produto
+- [x] **Passo 3** — Catálogo e página de produto
 - [ ] **Passo 4** — Carrinho sem login
 - [ ] **Passo 5** — Checkout com login só no pagamento
 - [ ] **Passo 6** — Conta do cliente (pedidos, favoritos, notificações)
