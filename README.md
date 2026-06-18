@@ -95,7 +95,7 @@ O frontend usa proxy para `/api` → `http://localhost:3333` (configurável em `
 - [x] **Passo 3** — Catálogo e página de produto
 - [x] **Passo 4** — Carrinho sem login
 - [x] **Passo 5** — Checkout com login só no pagamento
-- [ ] **Passo 6** — Conta do cliente (pedidos, favoritos, notificações)
+- [x] **Passo 6** — Conta do cliente (pedidos, favoritos, notificações)
 - [ ] **Passo 7** — Painel admin + relatórios PDF
 - [ ] **Passo 8** — Integração WhatsApp no front
 - [ ] **Passo 9** — Polish e responsividade
