@@ -26,15 +26,15 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className="relative hidden lg:block">
-            <div className="aspect-[4/5] overflow-hidden rounded-xl2 bg-rosa-400/40 shadow-card">
-              <img
-                src="/brand/logo-raio-de-luz.jpg"
-                alt="Raio de Luz"
-                className="h-full w-full object-cover"
-              />
+          <div className="relative hidden flex-col items-center justify-center lg:flex">
+            <div className="text-center font-display font-semibold leading-[0.92] text-dourado-300">
+              <span className="block text-[5.5rem] xl:text-[6.5rem]">Raio</span>
+              <span className="block text-[5.5rem] xl:text-[6.5rem]">de Luz</span>
+              <span className="mt-3 block text-xs uppercase tracking-[0.3em] text-dourado-300/80">
+                ✦ Moda Feminina
+              </span>
             </div>
-            <div className="absolute -bottom-5 -left-5 rounded-xl2 bg-dourado-300 px-6 py-4 text-carvao shadow-soft">
+            <div className="mt-8 rounded-xl2 bg-dourado-300 px-6 py-4 text-carvao shadow-soft">
               <p className="font-display text-2xl font-semibold">Nova Coleção</p>
               <p className="text-sm">Outono / Inverno</p>
             </div>
