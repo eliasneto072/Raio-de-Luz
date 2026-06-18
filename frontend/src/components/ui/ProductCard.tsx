@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { ShoppingBag, Check } from 'lucide-react';
+import { ShoppingBag, Check, Heart } from 'lucide-react';
 import type { Product } from '@/types';
 import { formatCurrency, effectivePrice, hasDiscount } from '@/lib/format';
 import { useCart } from '@/store/cart';
+import { useAuth } from '@/store/auth';
+import { useFavorites } from '@/store/favorites';
 
 interface ProductCardProps {
   product: Product;
@@ -11,8 +13,18 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const add = useCart((s) => s.add);
+  const { user } = useAuth();
+  const { isFavorite, toggle } = useFavorites();
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
+
+  const favorited = isFavorite(product.id);
+
+  function handleFavorite(e: React.MouseEvent) {
+    e.preventDefault();
+    if (!user) return; // sem login, ignora (o coração nem aparece)
+    toggle(product.id);
+  }
 
   const price = effectivePrice(product);
   const discount = hasDiscount(product);
@@ -69,6 +81,17 @@ export function ProductCard({ product }: ProductCardProps) {
               Esgotado
             </span>
           </div>
+        )}
+
+        {/* Favoritar (só logado) */}
+        {user && (
+          <button
+            onClick={handleFavorite}
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-carvao shadow-soft transition-colors hover:text-rosa-500"
+            aria-label={favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          >
+            <Heart className={`h-4 w-4 ${favorited ? 'fill-rosa-500 text-rosa-500' : ''}`} />
+          </button>
         )}
 
         {/* Botão rápido de adicionar */}

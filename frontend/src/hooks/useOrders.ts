@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiGet, apiPost } from '@/lib/api';
 import type { Order, PaymentMethod } from '@/types';
 
@@ -23,6 +23,13 @@ export interface CreateOrderInput {
 export function useCreateOrder() {
   return useMutation({
     mutationFn: (input: CreateOrderInput) => apiPost<Order>('/orders', input),
+  });
+}
+
+export function useMyOrders() {
+  return useQuery({
+    queryKey: ['orders', 'my'],
+    queryFn: () => apiGet<Order[]>('/orders/my'),
   });
 }
 

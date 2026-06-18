@@ -1,6 +1,14 @@
 import { create } from 'zustand';
-import { apiGet, apiPost, tokenStore } from '@/lib/api';
+import { apiGet, apiPost, apiPatch, tokenStore } from '@/lib/api';
 import type { User } from '@/types';
+
+interface ProfileUpdate {
+  name?: string;
+  phone?: string;
+  whatsapp?: string;
+  notifyEmail?: boolean;
+  notifyWhatsapp?: boolean;
+}
 
 interface AuthState {
   user: User | null;
@@ -9,6 +17,7 @@ interface AuthState {
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<User>;
   register: (input: { name: string; email: string; password: string; phone?: string }) => Promise<User>;
+  updateProfile: (input: ProfileUpdate) => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -43,6 +52,12 @@ export const useAuth = create<AuthState>((set) => ({
     tokenStore.set(res.token);
     set({ user: res.user });
     return res.user;
+  },
+
+  updateProfile: async (input) => {
+    const user = await apiPatch<User>('/profile', input);
+    set({ user });
+    return user;
   },
 
   logout: async () => {

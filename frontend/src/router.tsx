@@ -7,6 +7,8 @@ import { CategoriesPage } from '@/pages/CategoriesPage';
 import { CartPage } from '@/pages/CartPage';
 import { CheckoutPage } from '@/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage';
+import { LoginPage } from '@/pages/LoginPage';
+import { AccountPage } from '@/pages/AccountPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -21,7 +23,9 @@ export const router = createBrowserRouter([
       { path: 'carrinho', element: <CartPage /> },
       { path: 'checkout', element: <CheckoutPage /> },
       { path: 'pedido/:id', element: <OrderConfirmationPage /> },
-      // Próximos passos adicionarão: /entrar, /conta/*, /admin/* etc.
+      { path: 'entrar', element: <LoginPage /> },
+      { path: 'conta', element: <AccountPage /> },
+      // Próximos passos adicionarão: /admin/* etc.
       { path: '*', element: <NotFoundPage /> },
     ],
   },
