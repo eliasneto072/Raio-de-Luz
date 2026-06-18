@@ -4,6 +4,7 @@ import { HomePage } from '@/pages/HomePage';
 import { CatalogPage } from '@/pages/CatalogPage';
 import { ProductPage } from '@/pages/ProductPage';
 import { CategoriesPage } from '@/pages/CategoriesPage';
+import { CartPage } from '@/pages/CartPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -15,6 +16,7 @@ export const router = createBrowserRouter([
       { path: 'produtos', element: <CatalogPage /> },
       { path: 'produto/:slug', element: <ProductPage /> },
       { path: 'categorias', element: <CategoriesPage /> },
+      { path: 'carrinho', element: <CartPage /> },
       // Próximos passos adicionarão: /checkout, /entrar, /conta/*, /admin/* etc.
       { path: '*', element: <NotFoundPage /> },
     ],
