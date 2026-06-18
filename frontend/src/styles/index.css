@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-creme text-carvao font-sans antialiased;
+  }
+  ::selection {
+    @apply bg-rosa-500 text-white;
+  }
+}
+
+@layer components {
+  .container-rl {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  /* Botão primário */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-rosa-500 px-6 py-3
+           text-sm font-semibold text-white transition-all duration-200
+           hover:bg-rosa-600 active:scale-[0.98]
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rosa-500
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Botão secundário (contorno) */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-carvao/15 bg-white px-6 py-3
+           text-sm font-semibold text-carvao transition-all duration-200
+           hover:border-rosa-500 hover:text-rosa-500 active:scale-[0.98]
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rosa-500;
+  }
+
+  /* Botão dourado (acento) */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-dourado-300 px-6 py-3
+           text-sm font-semibold text-carvao transition-all duration-200
+           hover:bg-dourado-400 active:scale-[0.98]
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dourado-400;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-rosa-500;
+  }
+
+  /* Skeleton de carregamento */
+  .skeleton {
+    @apply animate-shimmer rounded-lg bg-gradient-to-r from-rosa-100 via-creme to-rosa-100 bg-[length:200%_100%];
+  }
+}
