@@ -14,7 +14,7 @@ export function ordersRouter() {
   // Admin
   router.get('/', authMiddleware, adminOnly, ordersController.list);
   router.get('/stats', authMiddleware, adminOnly, ordersController.getStats);
-  router.get('/:id', authMiddleware, ordersController.getById);
+  router.get('/:id', optionalAuth, ordersController.getById);
   router.patch('/:id/status', authMiddleware, adminOnly, ordersController.updateStatus);
 
   return router;

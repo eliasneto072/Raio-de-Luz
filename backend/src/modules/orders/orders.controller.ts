@@ -19,7 +19,13 @@ export const ordersController = {
     }));
   },
   getById: async (req: Request, res: Response) => {
-    ok(res, await ordersService.getById(req.params.id));
+    const order = await ordersService.getById(req.params.id);
+    // Convidado acessa pelo UUID (impossível de adivinhar). Usuário logado só
+    // pode ver os próprios pedidos, exceto admin.
+    if (req.user && req.user.role !== 'ADMIN' && order.userId && order.userId !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Acesso negado a este pedido' });
+    }
+    ok(res, order);
   },
   myOrders: async (req: Request, res: Response) => {
     ok(res, await ordersService.myOrders(req.user!.id));
