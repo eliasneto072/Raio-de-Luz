@@ -47,6 +47,24 @@ Raio_Luz/
         └── types/              Tipos compartilhados
 ```
 
+## ✦ Variáveis de ambiente
+
+O backend usa um arquivo `.env` (nunca versionado). Use o `backend/.env.example`
+como referência das variáveis necessárias:
+
+| Variável | Descrição |
+|----------|-----------|
+| `DATABASE_URL` | String de conexão do PostgreSQL |
+| `JWT_SECRET` / `JWT_EXPIRES_IN` | Segredo e validade do token de login |
+| `SMTP_*` / `EMAIL_FROM` | Envio de e-mails (Nodemailer) |
+| `WHATSAPP_*` / `STORE_WHATSAPP` | Integração WhatsApp (Evolution API) |
+| `CLOUDINARY_*` | Upload de imagens (opcional) |
+| `FRONTEND_URL` | URL do front (links em e-mails e CORS) |
+| `NODE_ENV` / `PORT` | Ambiente e porta da API |
+
+> ⚠️ Nunca faça commit do `.env` real. Ele já está no `.gitignore`.
+> Se algum segredo vazar (ex.: em um ZIP), rotacione-o no painel do provedor.
+
 ## ✦ Como rodar
 
 ### Backend
