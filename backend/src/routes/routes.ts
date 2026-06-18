@@ -5,6 +5,8 @@ import { ordersRouter } from '../modules/orders/orders.routes';
 import { categoriesRouter } from '../modules/categories/categories.routes';
 import { cartRouter } from '../modules/cart/cart.routes';
 import { couponsRouter } from '../modules/coupons/coupons.routes';
+import { favoritesRouter } from '../modules/favorites/favorites.routes';
+import { profileRouter } from '../modules/profile/profile.routes';
 import { notificationsRouter } from '../modules/notifications/notifications.routes';
 import { reportsRouter } from '../modules/reports/reports.routes';
 
@@ -15,6 +17,8 @@ export function setupRoutes(app: Express) {
   app.use('/api/categories', categoriesRouter());
   app.use('/api/cart', cartRouter());
   app.use('/api/coupons', couponsRouter());
+  app.use('/api/favorites', favoritesRouter());
+  app.use('/api/profile', profileRouter());
   app.use('/api/notifications', notificationsRouter());
   app.use('/api/reports', reportsRouter());
 }
