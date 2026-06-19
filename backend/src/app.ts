@@ -1,6 +1,7 @@
 import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { setupRoutes } from './routes/routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
@@ -13,6 +14,9 @@ export function createApp() {
   }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Serve as imagens enviadas no fallback local (quando não há Cloudinary)
+  app.use('/api/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
   app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'Raio de Luz API' }));
 
