@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { useCategories } from '@/hooks/useProducts';
 import { useCreateProduct, useUpdateProduct, type ProductFormData } from '@/hooks/useAdmin';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 import type { Product } from '@/types';
 
 interface ProductFormProps {
@@ -39,7 +40,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
   );
 
   const [images, setImages] = useState<ImageRow[]>(
-    product?.images?.length ? product.images.map((i) => ({ imageUrl: i.imageUrl })) : [{ imageUrl: '' }]
+    product?.images?.length ? product.images.map((i) => ({ imageUrl: i.imageUrl })) : []
   );
 
   const [error, setError] = useState<string | null>(null);
@@ -149,23 +150,8 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
 
           {/* Imagens */}
           <div>
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-semibold">Imagens (URLs)</span>
-              <button type="button" onClick={() => setImages((im) => [...im, { imageUrl: '' }])} className="flex items-center gap-1 text-sm text-rosa-500">
-                <Plus className="h-4 w-4" /> Adicionar
-              </button>
-            </div>
-            <div className="space-y-2">
-              {images.map((img, i) => (
-                <div key={i} className="flex gap-2">
-                  <input value={img.imageUrl} onChange={(e) => setImages((im) => im.map((x, j) => j === i ? { imageUrl: e.target.value } : x))}
-                    placeholder="https://..." className="flex-1 rounded-lg border border-carvao/15 bg-white px-3 py-2 text-sm outline-none focus:border-rosa-500" />
-                  <button type="button" onClick={() => setImages((im) => im.filter((_, j) => j !== i))} className="rounded-lg p-2 text-carvao/40 hover:text-red-500">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
+            <span className="mb-2 block text-sm font-semibold">Imagens do produto</span>
+            <ImageUploader images={images.map((i) => i.imageUrl)} onChange={(urls) => setImages(urls.map((u) => ({ imageUrl: u })))} />
           </div>
 
           {/* Variantes */}
