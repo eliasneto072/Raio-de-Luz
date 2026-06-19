@@ -165,7 +165,7 @@ export class OrdersService {
       if (endDate) where.createdAt.lte = endDate;
     }
 
-    const [totalOrders, revenue, ordersByStatus, topProducts, dailySales] = await Promise.all([
+    const [totalOrders, revenue, ordersByStatus, topProducts, recentOrders] = await Promise.all([
       prisma.order.count({ where }),
       prisma.order.aggregate({ where: { ...where, status: { notIn: [OrderStatus.CANCELED] } }, _sum: { total: true } }),
       prisma.order.groupBy({ by: ['status'], where, _count: true }),
@@ -176,16 +176,28 @@ export class OrdersService {
         orderBy: { _sum: { totalPrice: 'desc' } },
         take: 5,
       }),
-      prisma.$queryRaw`
-        SELECT DATE(created_at) as date, COUNT(*) as orders, SUM(total) as revenue
-        FROM "Order"
-        WHERE status != 'CANCELED'
-        ${startDate ? prisma.$queryRaw`AND created_at >= ${startDate}` : prisma.$queryRaw``}
-        GROUP BY DATE(created_at)
-        ORDER BY date DESC
-        LIMIT 30
-      `,
+      // Pedidos recentes (não-cancelados) para montar a série diária em memória
+      prisma.order.findMany({
+        where: { ...where, status: { notIn: [OrderStatus.CANCELED] } },
+        select: { createdAt: true, total: true },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      }),
     ]);
+
+    // Agrupa por dia (YYYY-MM-DD) sem depender de SQL cru
+    const dailyMap = new Map<string, { orders: number; revenue: number }>();
+    for (const o of recentOrders) {
+      const day = o.createdAt.toISOString().split('T')[0];
+      const entry = dailyMap.get(day) || { orders: 0, revenue: 0 };
+      entry.orders += 1;
+      entry.revenue += Number(o.total);
+      dailyMap.set(day, entry);
+    }
+    const dailySales = Array.from(dailyMap.entries())
+      .map(([date, v]) => ({ date, orders: v.orders, revenue: v.revenue }))
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .slice(0, 30);
 
     return {
       totalOrders,
