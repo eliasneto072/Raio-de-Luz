@@ -91,6 +91,15 @@ export function Header() {
             <Heart className="h-5 w-5 text-carvao/80" />
           </Link>
 
+          {user?.role === 'ADMIN' && (
+            <Link
+              to="/admin"
+              className="hidden rounded-full bg-carvao px-3 py-2 text-xs font-semibold text-creme transition-colors hover:bg-carvao/80 sm:inline-flex"
+            >
+              Painel
+            </Link>
+          )}
+
           <Link
             to={user ? '/conta' : '/entrar'}
             className="rounded-full p-2.5 transition-colors hover:bg-rosa-50"

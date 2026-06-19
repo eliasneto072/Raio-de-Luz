@@ -40,11 +40,23 @@ api.interceptors.request.use((config) => {
 // Desempacota { success, data } e normaliza erros
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const message =
+  async (error) => {
+    let message =
       error.response?.data?.message ||
       error.response?.data?.error ||
       'Algo deu errado. Tente novamente.';
+
+    // Em requests de download (blob), o corpo do erro vem como Blob — extrai o JSON
+    if (error.response?.data instanceof Blob && error.response.data.type === 'application/json') {
+      try {
+        const text = await error.response.data.text();
+        const parsed = JSON.parse(text);
+        message = parsed.message || parsed.error || message;
+      } catch {
+        /* mantém a mensagem padrão */
+      }
+    }
+
     return Promise.reject(new Error(message));
   }
 );

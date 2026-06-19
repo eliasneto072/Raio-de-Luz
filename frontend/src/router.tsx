@@ -9,6 +9,11 @@ import { CheckoutPage } from '@/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { AccountPage } from '@/pages/AccountPage';
+import { AdminLayout } from '@/pages/admin/AdminLayout';
+import { AdminDashboard } from '@/pages/admin/AdminDashboard';
+import { AdminOrders } from '@/pages/admin/AdminOrders';
+import { AdminProducts } from '@/pages/admin/AdminProducts';
+import { AdminReports } from '@/pages/admin/AdminReports';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -25,8 +30,17 @@ export const router = createBrowserRouter([
       { path: 'pedido/:id', element: <OrderConfirmationPage /> },
       { path: 'entrar', element: <LoginPage /> },
       { path: 'conta', element: <AccountPage /> },
-      // Próximos passos adicionarão: /admin/* etc.
       { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <AdminDashboard /> },
+      { path: 'pedidos', element: <AdminOrders /> },
+      { path: 'produtos', element: <AdminProducts /> },
+      { path: 'relatorios', element: <AdminReports /> },
     ],
   },
 ]);
