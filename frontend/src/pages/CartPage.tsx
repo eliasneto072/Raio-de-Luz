@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
-import { ShoppingBag, Minus, Plus, Trash2, ChevronLeft } from 'lucide-react';
+import { ShoppingBag, Minus, Plus, Trash2, ChevronLeft, MessageCircle } from 'lucide-react';
 import { useCart } from '@/store/cart';
 import { useCoupon } from '@/store/coupon';
+import { useConfig, whatsappLink } from '@/store/config';
 import { formatCurrency, effectivePrice, hasDiscount } from '@/lib/format';
 import { calcTotals, calcSubtotal } from '@/lib/cart';
 import { OrderSummary } from '@/components/ui/OrderSummary';
@@ -11,9 +12,27 @@ import { CouponField } from '@/components/ui/CouponField';
 export function CartPage() {
   const { items, updateQty, remove } = useCart();
   const { coupon, refresh } = useCoupon();
+  const { config } = useConfig();
 
   const subtotal = calcSubtotal(items);
   const totals = calcTotals(items, coupon?.discount ?? 0);
+
+  function buildWhatsappOrder(): string {
+    const lines = items.map(
+      (i) => `• ${i.quantity}x ${i.product.name}` +
+        (i.variant ? ` (${[i.variant.color, i.variant.size].filter(Boolean).join('/')})` : '') +
+        ` — ${formatCurrency(effectivePrice(i.product) * i.quantity)}`
+    );
+    return [
+      'Olá! Gostaria de fazer este pedido na Raio de Luz ✦',
+      '',
+      ...lines,
+      '',
+      `Subtotal: ${formatCurrency(totals.subtotal)}`,
+      coupon ? `Cupom ${coupon.code}: -${formatCurrency(totals.discount)}` : '',
+      `Total: ${formatCurrency(totals.total)}`,
+    ].filter(Boolean).join('\n');
+  }
 
   // Revalida o cupom sempre que o subtotal muda
   useEffect(() => {
@@ -113,6 +132,14 @@ export function CartPage() {
             <Link to="/checkout" className="btn-primary w-full">
               Finalizar compra
             </Link>
+            <a
+              href={whatsappLink(config.whatsapp, buildWhatsappOrder())}
+              target="_blank"
+              rel="noreferrer"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-[#25D366] bg-white px-6 py-3 text-sm font-semibold text-[#1d9e4e] transition-colors hover:bg-[#25D366]/5"
+            >
+              <MessageCircle className="h-4 w-4" /> Pedir pelo WhatsApp
+            </a>
             <p className="text-center text-xs text-carvao/40">
               Você só precisa se identificar na etapa de pagamento ✦
             </p>

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Instagram, MessageCircle, Mail } from 'lucide-react';
-
-const STORE_WHATSAPP = '5588999999999'; // sobrescreva conforme o backend (STORE_WHATSAPP)
+import { useConfig, whatsappLink } from '@/store/config';
 
 export function Footer() {
+  const { config } = useConfig();
   return (
     <footer className="mt-24 bg-carvao text-creme">
       <div className="container-rl grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
@@ -17,7 +17,7 @@ export function Footer() {
           </p>
           <div className="mt-6 flex gap-3">
             <a
-              href="https://instagram.com"
+              href={config.instagram}
               target="_blank"
               rel="noreferrer"
               className="rounded-full bg-white/10 p-2.5 transition-colors hover:bg-rosa-500"
@@ -26,7 +26,7 @@ export function Footer() {
               <Instagram className="h-5 w-5" />
             </a>
             <a
-              href={`https://wa.me/${STORE_WHATSAPP}`}
+              href={whatsappLink(config.whatsapp)}
               target="_blank"
               rel="noreferrer"
               className="rounded-full bg-white/10 p-2.5 transition-colors hover:bg-rosa-500"
@@ -35,7 +35,7 @@ export function Footer() {
               <MessageCircle className="h-5 w-5" />
             </a>
             <a
-              href="mailto:contato@raiodeluz.com"
+              href={`mailto:${config.email}`}
               className="rounded-full bg-white/10 p-2.5 transition-colors hover:bg-rosa-500"
               aria-label="E-mail"
             >
@@ -71,7 +71,7 @@ export function Footer() {
             Seg a Sex, 9h às 18h
           </p>
           <a
-            href={`https://wa.me/${STORE_WHATSAPP}`}
+            href={whatsappLink(config.whatsapp)}
             target="_blank"
             rel="noreferrer"
             className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-dourado-300 hover:underline"

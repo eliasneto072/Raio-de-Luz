@@ -3,8 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Package, MessageCircle, Mail } from 'lucide-react';
 import { fetchOrder } from '@/hooks/useOrders';
 import { formatCurrency, formatDate } from '@/lib/format';
-
-const STORE_WHATSAPP = '5588999999999'; // ajuste conforme STORE_WHATSAPP do backend
+import { useConfig, whatsappLink } from '@/store/config';
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Aguardando pagamento',
@@ -20,6 +19,7 @@ export function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const justCreated = (location.state as { justCreated?: boolean } | null)?.justCreated;
+  const { config } = useConfig();
 
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', id],
@@ -48,9 +48,7 @@ export function OrderConfirmationPage() {
     );
   }
 
-  const whatsappMessage = encodeURIComponent(
-    `Olá! Fiz o pedido #${order.id.slice(0, 8).toUpperCase()} na Raio de Luz ✦ no valor de ${formatCurrency(order.total)}. Gostaria de combinar o pagamento.`
-  );
+  const whatsappMessage = `Olá! Fiz o pedido #${order.id.slice(0, 8).toUpperCase()} na Raio de Luz ✦ no valor de ${formatCurrency(order.total)}. Gostaria de combinar o pagamento.`;
 
   return (
     <div className="container-rl py-12">
@@ -85,7 +83,7 @@ export function OrderConfirmationPage() {
         {/* Pagamento via WhatsApp */}
         {order.paymentMethod === 'WHATSAPP' && (
           <a
-            href={`https://wa.me/${STORE_WHATSAPP}?text=${whatsappMessage}`}
+            href={whatsappLink(config.whatsapp, whatsappMessage)}
             target="_blank"
             rel="noreferrer"
             className="mt-6 flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 font-semibold text-white transition-transform hover:scale-[1.01]"
