@@ -19,7 +19,7 @@ export const env = {
   WHATSAPP_API_URL: process.env.WHATSAPP_API_URL || '',
   WHATSAPP_API_KEY: process.env.WHATSAPP_API_KEY || '',
   WHATSAPP_INSTANCE: process.env.WHATSAPP_INSTANCE || '',
-  STORE_WHATSAPP: process.env.STORE_WHATSAPP || '5588999999999',
+  STORE_WHATSAPP: process.env.STORE_WHATSAPP || '5583998154641',
 
   // Cloudinary (opcional)
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
