@@ -66,7 +66,7 @@ export interface ProductFormData {
   isNew: boolean;
   coverImage?: string;
   images?: { imageUrl: string; alt?: string }[];
-  variants?: { sku?: string; color?: string; size?: string; price: number; stock: number }[];
+  variants?: { id?: string; sku?: string; color?: string; size?: string; price: number; stock: number }[];
 }
 
 export function useCreateProduct() {

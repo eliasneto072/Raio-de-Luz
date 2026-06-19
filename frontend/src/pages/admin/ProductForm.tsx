@@ -11,7 +11,7 @@ interface ProductFormProps {
   onSaved: () => void;
 }
 
-interface VariantRow { color: string; size: string; price: string; stock: string; }
+interface VariantRow { id?: string; color: string; size: string; price: string; stock: string; }
 interface ImageRow { imageUrl: string; }
 
 export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
@@ -35,7 +35,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
 
   const [variants, setVariants] = useState<VariantRow[]>(
     product?.variants?.length
-      ? product.variants.map((v) => ({ color: v.color ?? '', size: v.size ?? '', price: String(v.price), stock: String(v.stock) }))
+      ? product.variants.map((v) => ({ id: v.id, color: v.color ?? '', size: v.size ?? '', price: String(v.price), stock: String(v.stock) }))
       : [{ color: '', size: '', price: '', stock: '' }]
   );
 
@@ -61,6 +61,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
       variants: variants
         .filter((v) => v.price)
         .map((v) => ({
+          id: v.id,
           color: v.color || undefined,
           size: v.size || undefined,
           price: Number(v.price),

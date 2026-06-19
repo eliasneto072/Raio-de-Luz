@@ -75,24 +75,46 @@ export class ProductsService {
     // Atualiza campos escalares do produto
     await prisma.product.update({ where: { id }, data: rest });
 
-    // Se vieram variantes, substitui o conjunto (remove as antigas, cria as novas)
+    // Variantes: atualiza existentes, cria novas e remove as antigas com segurança.
+    // Variantes já usadas em pedidos/carrinhos NÃO podem ser apagadas (FK), então
+    // essas são preservadas — apenas atualizamos seus dados.
     if (Array.isArray(variants)) {
-      await prisma.productVariant.deleteMany({ where: { productId: id } });
-      if (variants.length > 0) {
-        await prisma.productVariant.createMany({
-          data: variants.map((v: any) => ({
-            productId: id,
-            sku: v.sku || null,
-            color: v.color || null,
-            size: v.size || null,
-            price: v.price,
-            stock: v.stock ?? 0,
-          })),
+      const existing = await prisma.productVariant.findMany({
+        where: { productId: id },
+        include: { _count: { select: { orderItems: true, cartItems: true } } },
+      });
+
+      // IDs que o formulário enviou (variantes a manter/atualizar)
+      const incomingIds = new Set(variants.filter((v: any) => v.id).map((v: any) => v.id));
+
+      // Remove as que sumiram do formulário E não estão em uso
+      const toDelete = existing.filter(
+        (v) => !incomingIds.has(v.id) && v._count.orderItems === 0 && v._count.cartItems === 0
+      );
+      if (toDelete.length > 0) {
+        await prisma.productVariant.deleteMany({
+          where: { id: { in: toDelete.map((v) => v.id) } },
         });
+      }
+
+      // Atualiza ou cria cada variante recebida
+      for (const v of variants) {
+        const payload = {
+          sku: v.sku || null,
+          color: v.color || null,
+          size: v.size || null,
+          price: v.price,
+          stock: v.stock ?? 0,
+        };
+        if (v.id && existing.some((e) => e.id === v.id)) {
+          await prisma.productVariant.update({ where: { id: v.id }, data: payload });
+        } else {
+          await prisma.productVariant.create({ data: { ...payload, productId: id } });
+        }
       }
     }
 
-    // Se vieram imagens, substitui o conjunto
+    // Imagens não têm vínculo com pedidos — pode substituir o conjunto
     if (Array.isArray(images)) {
       await prisma.productImage.deleteMany({ where: { productId: id } });
       if (images.length > 0) {
