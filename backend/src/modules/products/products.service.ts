@@ -54,19 +54,60 @@ export class ProductsService {
 
   async create(data: any) {
     const slug = data.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+    const { variants, images, ...rest } = data;
     return prisma.product.create({
-      data: { ...data, slug, variants: data.variants ? { create: data.variants } : undefined },
+      data: {
+        ...rest,
+        slug,
+        variants: variants?.length ? { create: variants } : undefined,
+        images: images?.length
+          ? { create: images.map((img: any, i: number) => ({ imageUrl: img.imageUrl, alt: img.alt || null, position: i })) }
+          : undefined,
+      },
       include: { images: true, variants: true, category: true },
     });
   }
 
   async update(id: string, data: any) {
     await this.getById(id);
-    return prisma.product.update({
-      where: { id },
-      data,
-      include: { images: true, variants: true, category: true },
-    });
+    const { variants, images, ...rest } = data;
+
+    // Atualiza campos escalares do produto
+    await prisma.product.update({ where: { id }, data: rest });
+
+    // Se vieram variantes, substitui o conjunto (remove as antigas, cria as novas)
+    if (Array.isArray(variants)) {
+      await prisma.productVariant.deleteMany({ where: { productId: id } });
+      if (variants.length > 0) {
+        await prisma.productVariant.createMany({
+          data: variants.map((v: any) => ({
+            productId: id,
+            sku: v.sku || null,
+            color: v.color || null,
+            size: v.size || null,
+            price: v.price,
+            stock: v.stock ?? 0,
+          })),
+        });
+      }
+    }
+
+    // Se vieram imagens, substitui o conjunto
+    if (Array.isArray(images)) {
+      await prisma.productImage.deleteMany({ where: { productId: id } });
+      if (images.length > 0) {
+        await prisma.productImage.createMany({
+          data: images.map((img: any, i: number) => ({
+            productId: id,
+            imageUrl: img.imageUrl,
+            alt: img.alt || null,
+            position: i,
+          })),
+        });
+      }
+    }
+
+    return this.getById(id);
   }
 
   async delete(id: string) {
