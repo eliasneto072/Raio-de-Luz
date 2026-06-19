@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, apiGet, apiPatch } from '@/lib/api';
+import { api, apiGet, apiPost, apiPatch } from '@/lib/api';
 import type { Order, OrderStatus, Paginated, Product } from '@/types';
 
 // ---- Estatísticas do dashboard ----
@@ -50,6 +50,38 @@ export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/products/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'products'] }),
+  });
+}
+
+export interface ProductFormData {
+  name: string;
+  description?: string;
+  details?: string;
+  categoryId?: string;
+  basePrice: number;
+  salePrice?: number | null;
+  status: string;
+  isFeatured: boolean;
+  isNew: boolean;
+  coverImage?: string;
+  images?: { imageUrl: string; alt?: string }[];
+  variants?: { sku?: string; color?: string; size?: string; price: number; stock: number }[];
+}
+
+export function useCreateProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ProductFormData) => apiPost<Product>('/products', data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'products'] }),
+  });
+}
+
+export function useUpdateProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<ProductFormData> }) =>
+      apiPatch<Product>(`/products/${id}`, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'products'] }),
   });
 }

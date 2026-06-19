@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Trash2, ExternalLink, Search } from 'lucide-react';
+import { Trash2, ExternalLink, Search, Plus, Pencil } from 'lucide-react';
 import { useAdminProducts, useDeleteProduct } from '@/hooks/useAdmin';
 import { formatCurrency, effectivePrice } from '@/lib/format';
+import { ProductForm } from './ProductForm';
 import type { Product } from '@/types';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -16,10 +17,15 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export function AdminProducts() {
-  const { data, isLoading } = useAdminProducts();
+  const { data, isLoading, refetch } = useAdminProducts();
   const deleteProduct = useDeleteProduct();
   const [search, setSearch] = useState('');
   const [confirm, setConfirm] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Product | null>(null);
+
+  function openNew() { setEditing(null); setFormOpen(true); }
+  function openEdit(p: Product) { setEditing(p); setFormOpen(true); }
 
   const products = (data?.products ?? []).filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -36,21 +42,20 @@ export function AdminProducts() {
           <h1 className="font-display text-3xl font-semibold">Produtos</h1>
           <p className="mt-1 text-carvao/50">{products.length} produtos</p>
         </div>
-        <div className="flex items-center rounded-lg border border-carvao/15 bg-white px-3">
-          <Search className="h-4 w-4 text-carvao/40" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar produto..."
-            className="bg-transparent px-2 py-2 text-sm outline-none"
-          />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center rounded-lg border border-carvao/15 bg-white px-3">
+            <Search className="h-4 w-4 text-carvao/40" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar produto..."
+              className="bg-transparent px-2 py-2 text-sm outline-none"
+            />
+          </div>
+          <button onClick={openNew} className="btn-primary">
+            <Plus className="h-4 w-4" /> Novo produto
+          </button>
         </div>
-      </div>
-
-      {/* Nota: criação/edição de produto pode ser adicionada com um formulário dedicado */}
-      <div className="mt-4 rounded-lg bg-dourado-50 px-4 py-3 text-sm text-carvao/70">
-        Para cadastrar novos produtos, use o endpoint do backend ou um formulário dedicado (próxima evolução).
-        Aqui você gerencia os produtos existentes do catálogo.
       </div>
 
       <div className="mt-6 overflow-hidden rounded-xl2 border border-rosa-100 bg-white">
@@ -97,6 +102,9 @@ export function AdminProducts() {
                       <Link to={`/produto/${p.slug}`} target="_blank" className="rounded-lg p-2 text-carvao/40 hover:bg-rosa-50 hover:text-rosa-500" title="Ver na loja">
                         <ExternalLink className="h-4 w-4" />
                       </Link>
+                      <button onClick={() => openEdit(p)} className="rounded-lg p-2 text-carvao/40 hover:bg-rosa-50 hover:text-rosa-500" title="Editar">
+                        <Pencil className="h-4 w-4" />
+                      </button>
                       {confirm === p.id ? (
                         <div className="flex items-center gap-1">
                           <button
@@ -122,6 +130,14 @@ export function AdminProducts() {
           </table>
         )}
       </div>
+
+      {formOpen && (
+        <ProductForm
+          product={editing}
+          onClose={() => setFormOpen(false)}
+          onSaved={() => refetch()}
+        />
+      )}
     </div>
   );
 }
