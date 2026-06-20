@@ -16,10 +16,10 @@ const STATUS_LABEL: Record<string, string> = {
   PREPARING: 'Em preparação', SHIPPED: 'Enviado', DELIVERED: 'Entregue', CANCELED: 'Cancelado',
 };
 
-export function AccountPage() {
+export function AccountPage({ initialTab = 'pedidos' }: { initialTab?: Tab }) {
   const navigate = useNavigate();
   const { user, loading, logout } = useAuth();
-  const [tab, setTab] = useState<Tab>('pedidos');
+  const [tab, setTab] = useState<Tab>(initialTab);
 
   // Redireciona se não estiver logado
   useEffect(() => {
@@ -48,9 +48,9 @@ export function AccountPage() {
               <p className="text-sm text-carvao/50">{user.email}</p>
             </div>
             <nav className="space-y-1">
-              <NavItem active={tab === 'pedidos'} onClick={() => setTab('pedidos')} icon={<Package className="h-4 w-4" />} label="Meus pedidos" />
-              <NavItem active={tab === 'favoritos'} onClick={() => setTab('favoritos')} icon={<Heart className="h-4 w-4" />} label="Favoritos" />
-              <NavItem active={tab === 'perfil'} onClick={() => setTab('perfil')} icon={<Settings className="h-4 w-4" />} label="Dados e notificações" />
+              <NavItem active={tab === 'pedidos'} onClick={() => { setTab('pedidos'); navigate('/conta/pedidos'); }} icon={<Package className="h-4 w-4" />} label="Meus pedidos" />
+              <NavItem active={tab === 'favoritos'} onClick={() => { setTab('favoritos'); navigate('/conta/favoritos'); }} icon={<Heart className="h-4 w-4" />} label="Favoritos" />
+              <NavItem active={tab === 'perfil'} onClick={() => { setTab('perfil'); navigate('/conta/perfil'); }} icon={<Settings className="h-4 w-4" />} label="Dados e notificações" />
               <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm text-carvao/60 transition-colors hover:bg-rosa-50 hover:text-rosa-500">
                 <LogOut className="h-4 w-4" /> Sair
               </button>
@@ -131,6 +131,7 @@ function OrdersTab() {
 function FavoritesTab() {
   const [products, setProducts] = useState<Product[] | undefined>();
   const [loading, setLoading] = useState(true);
+  const favIds = useFavorites((s) => s.ids);
 
   useEffect(() => {
     apiGet<Product[]>('/favorites')
@@ -139,7 +140,10 @@ function FavoritesTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (!loading && (!products || products.length === 0)) {
+  // Remove da lista em tempo real quando o usuário desfavorita um card
+  const visible = products?.filter((p) => favIds.has(p.id));
+
+  if (!loading && (!visible || visible.length === 0)) {
     return (
       <div className="rounded-xl2 border border-dashed border-rosa-200 py-16 text-center">
         <Heart className="mx-auto h-10 w-10 text-rosa-200" />
@@ -149,7 +153,7 @@ function FavoritesTab() {
     );
   }
 
-  return <ProductGrid products={products} loading={loading} skeletonCount={6} />;
+  return <ProductGrid products={visible} loading={loading} skeletonCount={6} />;
 }
 
 // ---------- Perfil e notificações ----------
