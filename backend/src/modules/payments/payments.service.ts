@@ -49,24 +49,35 @@ export const paymentService = {
       });
     }
 
-    const result = await preference.create({
-      body: {
-        items,
-        external_reference: order.id, // liga a preferência ao nosso pedido
-        payer: {
-          name: order.customerName,
-          email: order.customerEmail,
-        },
-        back_urls: {
-          success: `${env.FRONTEND_URL}/pedido/${order.id}?status=sucesso`,
-          failure: `${env.FRONTEND_URL}/pedido/${order.id}?status=falha`,
-          pending: `${env.FRONTEND_URL}/pedido/${order.id}?status=pendente`,
-        },
-        auto_return: 'approved',
-        notification_url: `${env.API_URL}/api/payments/webhook`,
-        statement_descriptor: 'RAIO DE LUZ',
+    // O Mercado Pago não aceita localhost em auto_return nem em notification_url.
+    const isLocalhost = env.FRONTEND_URL?.includes('localhost');
+    const apiIsLocalhost = env.API_URL?.includes('localhost');
+
+    const body: any = {
+      items,
+      external_reference: order.id, // liga a preferência ao nosso pedido
+      payer: {
+        name: order.customerName,
+        email: order.customerEmail,
       },
-    });
+      back_urls: {
+        success: `${env.FRONTEND_URL}/pedido/${order.id}?status=sucesso`,
+        failure: `${env.FRONTEND_URL}/pedido/${order.id}?status=falha`,
+        pending: `${env.FRONTEND_URL}/pedido/${order.id}?status=pendente`,
+      },
+      statement_descriptor: 'RAIO DE LUZ',
+    };
+
+    // auto_return só funciona com back_url pública (não-localhost)
+    if (!isLocalhost) {
+      body.auto_return = 'approved';
+    }
+    // webhook só funciona com URL pública alcançável pela internet (ngrok/produção)
+    if (!apiIsLocalhost) {
+      body.notification_url = `${env.API_URL}/api/payments/webhook`;
+    }
+
+    const result = await preference.create({ body });
 
     return {
       url: result.init_point || result.sandbox_init_point || '',
