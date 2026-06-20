@@ -9,6 +9,7 @@ import { configRouter } from '../modules/config/config.routes';
 import { favoritesRouter } from '../modules/favorites/favorites.routes';
 import { profileRouter } from '../modules/profile/profile.routes';
 import { uploadRouter } from '../modules/upload/upload.routes';
+import { paymentsRouter } from '../modules/payments/payments.routes';
 import { notificationsRouter } from '../modules/notifications/notifications.routes';
 import { reportsRouter } from '../modules/reports/reports.routes';
 
@@ -23,6 +24,7 @@ export function setupRoutes(app: Express) {
   app.use('/api/favorites', favoritesRouter());
   app.use('/api/profile', profileRouter());
   app.use('/api/upload', uploadRouter());
+  app.use('/api/payments', paymentsRouter());
   app.use('/api/notifications', notificationsRouter());
   app.use('/api/reports', reportsRouter());
 }

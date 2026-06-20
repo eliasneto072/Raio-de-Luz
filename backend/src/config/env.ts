@@ -27,6 +27,10 @@ export const env = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
 
+  // Mercado Pago (Checkout Pro)
+  MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN || '',
+  MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY || '',
+
   // Frontend URL (para links em emails)
   FRONTEND_URL: process.env.FRONTEND_URL,
 };
