@@ -48,7 +48,7 @@ export function ImageUploader({ images, onChange, max = 6 }: ImageUploaderProps)
     <div>
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
         {images.map((url, i) => (
-          <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-rosa-100 bg-rosa-50">
+          <div key={url} className="group relative aspect-square overflow-hidden rounded-lg border border-rosa-100 bg-rosa-50">
             <img src={url} alt={`Imagem ${i + 1}`} className="h-full w-full object-cover" />
             {i === 0 && (
               <span className="absolute left-1 top-1 rounded bg-rosa-500 px-1.5 py-0.5 text-[10px] font-medium text-white">

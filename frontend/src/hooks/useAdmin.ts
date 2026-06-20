@@ -73,7 +73,10 @@ export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: ProductFormData) => apiPost<Product>('/products', data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'products'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'products'] });
+      qc.invalidateQueries({ queryKey: ['products'] });
+    },
   });
 }
 
@@ -82,7 +85,12 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<ProductFormData> }) =>
       apiPatch<Product>(`/products/${id}`, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'products'] }),
+    onSuccess: () => {
+      // Invalida tudo relacionado a produtos: admin, vitrine (featured/new) e detalhes
+      qc.invalidateQueries({ queryKey: ['admin', 'products'] });
+      qc.invalidateQueries({ queryKey: ['products'] });
+      qc.invalidateQueries({ queryKey: ['product'] });
+    },
   });
 }
 

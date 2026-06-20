@@ -30,7 +30,6 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
     status: product?.status ?? 'ACTIVE',
     isFeatured: product?.isFeatured ?? false,
     isNew: product?.isNew ?? true,
-    coverImage: product?.coverImage ?? '',
   });
 
   const [variants, setVariants] = useState<VariantRow[]>(
@@ -56,7 +55,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
       status: form.status,
       isFeatured: form.isFeatured,
       isNew: form.isNew,
-      coverImage: form.coverImage || images[0]?.imageUrl || undefined,
+      coverImage: images[0]?.imageUrl || undefined,
       images: images.filter((i) => i.imageUrl.trim()).map((i) => ({ imageUrl: i.imageUrl })),
       variants: variants
         .filter((v) => v.price)

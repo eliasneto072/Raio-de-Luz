@@ -23,7 +23,7 @@ export class ProductsService {
         where,
         skip,
         take: limit,
-        include: { images: { orderBy: { position: 'asc' }, take: 1 }, category: true, variants: true },
+        include: { images: { orderBy: { position: 'asc' }, take: 1 }, category: true, variants: { orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] } },
         orderBy: { createdAt: 'desc' },
       }),
       prisma.product.count({ where }),
@@ -35,7 +35,7 @@ export class ProductsService {
   async getBySlug(slug: string) {
     const product = await prisma.product.findUnique({
       where: { slug, status: ProductStatus.ACTIVE },
-      include: { images: { orderBy: { position: 'asc' } }, category: true, variants: true },
+      include: { images: { orderBy: { position: 'asc' } }, category: true, variants: { orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] } },
     });
     if (!product) throw new AppError('Produto não encontrado', 404, 'PRODUCT_NOT_FOUND');
 
@@ -46,7 +46,7 @@ export class ProductsService {
   async getById(id: string) {
     const product = await prisma.product.findUnique({
       where: { id },
-      include: { images: { orderBy: { position: 'asc' } }, category: true, variants: true },
+      include: { images: { orderBy: { position: 'asc' } }, category: true, variants: { orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] } },
     });
     if (!product) throw new AppError('Produto não encontrado', 404, 'PRODUCT_NOT_FOUND');
     return product;
@@ -64,7 +64,7 @@ export class ProductsService {
           ? { create: images.map((img: any, i: number) => ({ imageUrl: img.imageUrl, alt: img.alt || null, position: i })) }
           : undefined,
       },
-      include: { images: true, variants: true, category: true },
+      include: { images: true, variants: { orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] }, category: true },
     });
   }
 
@@ -141,7 +141,7 @@ export class ProductsService {
     return prisma.product.findMany({
       where: { status: ProductStatus.ACTIVE, isFeatured: true },
       take: limit,
-      include: { images: { orderBy: { position: 'asc' }, take: 1 }, category: true, variants: true },
+      include: { images: { orderBy: { position: 'asc' }, take: 1 }, category: true, variants: { orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] } },
     });
   }
 
@@ -150,7 +150,7 @@ export class ProductsService {
       where: { status: ProductStatus.ACTIVE, isNew: true },
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: { images: { orderBy: { position: 'asc' }, take: 1 }, category: true, variants: true },
+      include: { images: { orderBy: { position: 'asc' }, take: 1 }, category: true, variants: { orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] } },
     });
   }
 }
