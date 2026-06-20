@@ -1,4 +1,4 @@
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Package, MessageCircle, Mail } from 'lucide-react';
 import { fetchOrder } from '@/hooks/useOrders';
@@ -18,6 +18,8 @@ const STATUS_LABEL: Record<string, string> = {
 export function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const paymentStatusParam = searchParams.get('status'); // sucesso | falha | pendente (do MP)
   const justCreated = (location.state as { justCreated?: boolean } | null)?.justCreated;
   const { config } = useConfig();
 
@@ -53,6 +55,23 @@ export function OrderConfirmationPage() {
   return (
     <div className="container-rl py-12">
       <div className="mx-auto max-w-2xl">
+        {/* Faixa de retorno do pagamento (Mercado Pago) */}
+        {paymentStatusParam === 'sucesso' && (
+          <div className="mb-6 rounded-xl2 bg-green-50 px-5 py-4 text-center text-sm font-medium text-green-700">
+            ✦ Pagamento aprovado! Seu pedido está sendo preparado.
+          </div>
+        )}
+        {paymentStatusParam === 'pendente' && (
+          <div className="mb-6 rounded-xl2 bg-dourado-50 px-5 py-4 text-center text-sm font-medium text-carvao/80">
+            ⏳ Pagamento pendente. Assim que for confirmado, avisaremos você.
+          </div>
+        )}
+        {paymentStatusParam === 'falha' && (
+          <div className="mb-6 rounded-xl2 bg-red-50 px-5 py-4 text-center text-sm font-medium text-red-700">
+            O pagamento não foi concluído. Você pode tentar novamente abaixo.
+          </div>
+        )}
+
         {/* Cabeçalho de sucesso */}
         <div className="text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">

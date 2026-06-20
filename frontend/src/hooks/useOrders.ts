@@ -36,3 +36,19 @@ export function useMyOrders() {
 export async function fetchOrder(id: string): Promise<Order> {
   return apiGet<Order>(`/orders/${id}`);
 }
+
+/** Verifica se o pagamento online está configurado no backend */
+export async function paymentStatus(): Promise<boolean> {
+  try {
+    const { configured } = await apiGet<{ configured: boolean }>('/payments/status');
+    return configured;
+  } catch {
+    return false;
+  }
+}
+
+/** Cria a preferência de pagamento e retorna a URL do Mercado Pago */
+export async function startPayment(orderId: string): Promise<string> {
+  const { url } = await apiPost<{ url: string }>(`/payments/checkout/${orderId}`);
+  return url;
+}

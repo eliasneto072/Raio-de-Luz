@@ -9,7 +9,7 @@ import { formatCurrency } from '@/lib/format';
 import { lookupCep, maskCep } from '@/lib/cep';
 import { OrderSummary } from '@/components/ui/OrderSummary';
 import { IdentificationStep, type Identification } from '@/components/checkout/IdentificationStep';
-import { useCreateOrder } from '@/hooks/useOrders';
+import { useCreateOrder, startPayment, paymentStatus } from '@/hooks/useOrders';
 import type { PaymentMethod } from '@/types';
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; hint: string }[] = [
@@ -95,6 +95,25 @@ export function CheckoutPage() {
       });
       clear();
       clearCoupon();
+
+      // Se o pagamento é online (não WhatsApp) e o Mercado Pago está ativo,
+      // redireciona para o checkout do MP. Senão, vai direto à confirmação.
+      if (payment !== 'WHATSAPP') {
+        const mpAtivo = await paymentStatus();
+        if (mpAtivo) {
+          try {
+            const url = await startPayment(order.id);
+            if (url) {
+              window.location.href = url; // redireciona ao Mercado Pago
+              return;
+            }
+          } catch {
+            // se falhar ao iniciar o pagamento, segue para a confirmação
+            // (o cliente pode tentar pagar de novo na página do pedido)
+          }
+        }
+      }
+
       navigate(`/pedido/${order.id}`, { state: { justCreated: true } });
     } catch (err) {
       setError((err as Error).message);
