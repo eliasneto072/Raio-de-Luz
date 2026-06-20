@@ -116,7 +116,14 @@ export function CheckoutPage() {
 
       navigate(`/pedido/${order.id}`, { state: { justCreated: true } });
     } catch (err) {
-      setError((err as Error).message);
+      // Extrai uma mensagem legível de qualquer formato de erro
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+          ? err
+          : (err as any)?.message || (err as any)?.error || 'Não foi possível finalizar o pedido. Tente novamente.';
+      setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
     }
   }
 
