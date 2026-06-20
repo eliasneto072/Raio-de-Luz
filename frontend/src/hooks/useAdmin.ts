@@ -54,6 +54,16 @@ export function useDeleteProduct() {
   });
 }
 
+/** Busca um produto completo por id (com todas as imagens e variantes) — usado na edição */
+export function useProductById(id?: string) {
+  return useQuery({
+    queryKey: ['admin', 'product', id],
+    queryFn: () => apiGet<Product>(`/products/${id}`),
+    enabled: !!id,
+    staleTime: 0, // sempre busca dados frescos ao editar
+  });
+}
+
 export interface ProductFormData {
   name: string;
   description?: string;

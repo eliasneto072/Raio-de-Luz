@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useCategories } from '@/hooks/useProducts';
-import { useCreateProduct, useUpdateProduct, type ProductFormData } from '@/hooks/useAdmin';
+import { useCreateProduct, useUpdateProduct, useProductById, type ProductFormData } from '@/hooks/useAdmin';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import type { Product } from '@/types';
 
@@ -14,7 +14,34 @@ interface ProductFormProps {
 interface VariantRow { id?: string; color: string; size: string; price: string; stock: string; }
 interface ImageRow { imageUrl: string; }
 
+// Wrapper: quando está editando, busca o produto COMPLETO (com todas as imagens
+// e variantes) antes de montar o formulário. A listagem traz só a capa (take: 1),
+// então sem isso o form abriria sem as demais imagens.
 export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
+  const { data: fullProduct, isLoading } = useProductById(product?.id);
+
+  // Novo produto: monta direto. Edição: espera carregar os dados completos.
+  if (product && isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-carvao/40 backdrop-blur-sm">
+        <div className="flex items-center gap-3 rounded-xl2 bg-creme px-8 py-6 shadow-xl">
+          <Loader2 className="h-5 w-5 animate-spin text-rosa-500" />
+          <span className="text-sm text-carvao/70">Carregando produto...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ProductFormInner
+      product={product ? fullProduct ?? product : null}
+      onClose={onClose}
+      onSaved={onSaved}
+    />
+  );
+}
+
+function ProductFormInner({ product, onClose, onSaved }: ProductFormProps) {
   const { data: categories } = useCategories();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
