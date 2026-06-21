@@ -16,8 +16,8 @@ const FALLBACK: StoreConfig = {
   storeTagline: 'Moda Feminina',
   whatsapp: '5583998154641',
   freeShippingThreshold: 250,
-  instagram: 'https://instagram.com',
-  email: 'contato@raiodeluz.com',
+  instagram: 'https://instagram.com/lojaraiodeluzpb',
+  email: 'deylianeempreendedora@gmail.com',
 };
 
 interface ConfigState {

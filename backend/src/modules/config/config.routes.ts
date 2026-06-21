@@ -12,8 +12,8 @@ export function configRouter() {
       storeTagline: 'Moda Feminina',
       whatsapp: env.STORE_WHATSAPP,
       freeShippingThreshold: 250,
-      instagram: 'https://instagram.com',
-      email: 'contato@raiodeluz.com',
+      instagram: 'https://instagram.com/lojaraiodeluzpb',
+      email: 'deylianeempreendedora@gmail.com',
     });
   });
 
