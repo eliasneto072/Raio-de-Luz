@@ -35,7 +35,9 @@ export function Footer() {
               <MessageCircle className="h-5 w-5" />
             </a>
             <a
-              href={`mailto:${config.email}`}
+              href={`https://mail.google.com/mail/?view=cm&fs=1&to=${config.email}`}
+              target="_blank"
+              rel="noreferrer"
               className="rounded-full bg-white/10 p-2.5 transition-colors hover:bg-rosa-500"
               aria-label="E-mail"
             >
