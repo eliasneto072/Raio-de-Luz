@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { ProductGrid } from '@/components/ui/ProductGrid';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { effectivePrice } from '@/lib/format';
 import type { Product } from '@/types';
 
@@ -38,7 +39,7 @@ export function CatalogPage() {
   const sort = (params.get('ordem') as SortKey) || 'recentes';
 
   const { data: categories } = useCategories();
-  const { data, isLoading } = useProducts({ categoryId, search, featured, limit: 50 });
+  const { data, isLoading, isError, refetch } = useProducts({ categoryId, search, featured, limit: 50 });
 
   const products = useMemo(
     () => (data?.products ? sortProducts(data.products, sort) : undefined),
@@ -140,7 +141,15 @@ export function CatalogPage() {
             </label>
           </div>
 
-          <ProductGrid products={products} loading={isLoading} skeletonCount={9} />
+          {isError ? (
+            <ErrorState
+              title="Não foi possível carregar os produtos"
+              message="Houve um problema ao buscar as peças. Verifique sua conexão e tente novamente."
+              onRetry={() => refetch()}
+            />
+          ) : (
+            <ProductGrid products={products} loading={isLoading} skeletonCount={9} />
+          )}
         </div>
       </div>
     </div>

@@ -47,6 +47,33 @@ export function ProductPage() {
     );
   }, [product, color, size, colors, sizes]);
 
+  // Uma cor está esgotada se nenhuma variante dessa cor (no tamanho atual, se houver) tem estoque
+  const colorHasStock = useMemo(() => {
+    return (c: string) => {
+      const vars = product?.variants?.filter(
+        (v) => v.color === c && (sizes.length === 0 || !size || v.size === size)
+      );
+      // se não há variante para essa combinação, checa a cor em qualquer tamanho
+      if (!vars || vars.length === 0) {
+        return product?.variants?.some((v) => v.color === c && v.stock > 0) ?? true;
+      }
+      return vars.some((v) => v.stock > 0);
+    };
+  }, [product, size, sizes]);
+
+  // Um tamanho está esgotado se nenhuma variante desse tamanho (na cor atual) tem estoque
+  const sizeHasStock = useMemo(() => {
+    return (s: string) => {
+      const vars = product?.variants?.filter(
+        (v) => v.size === s && (colors.length === 0 || !color || v.color === color)
+      );
+      if (!vars || vars.length === 0) {
+        return product?.variants?.some((v) => v.size === s && v.stock > 0) ?? true;
+      }
+      return vars.some((v) => v.stock > 0);
+    };
+  }, [product, color, colors]);
+
   if (isLoading) return <ProductSkeleton />;
 
   if (isError || !product) {
@@ -145,17 +172,20 @@ export function ProductPage() {
             <div className="mt-8">
               <p className="text-sm font-semibold">Cor: <span className="font-normal text-carvao/60">{color}</span></p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {colors.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setColor(c)}
-                    className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                      color === c ? 'border-rosa-500 bg-rosa-50 text-rosa-600' : 'border-carvao/15 hover:border-rosa-300'
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
+                {colors.map((c) => {
+                  const disponivel = colorHasStock(c);
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => setColor(c)}
+                      className={`relative rounded-full border px-4 py-2 text-sm transition-colors ${
+                        color === c ? 'border-rosa-500 bg-rosa-50 text-rosa-600' : 'border-carvao/15 hover:border-rosa-300'
+                      } ${!disponivel ? 'text-carvao/30 line-through' : ''}`}
+                    >
+                      {c}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -165,17 +195,20 @@ export function ProductPage() {
             <div className="mt-6">
               <p className="text-sm font-semibold">Tamanho: <span className="font-normal text-carvao/60">{size}</span></p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {sizes.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize(s)}
-                    className={`min-w-[3rem] rounded-lg border px-3 py-2 text-sm transition-colors ${
-                      size === s ? 'border-rosa-500 bg-rosa-50 text-rosa-600' : 'border-carvao/15 hover:border-rosa-300'
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+                {sizes.map((s) => {
+                  const disponivel = sizeHasStock(s);
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => setSize(s)}
+                      className={`min-w-[3rem] rounded-lg border px-3 py-2 text-sm transition-colors ${
+                        size === s ? 'border-rosa-500 bg-rosa-50 text-rosa-600' : 'border-carvao/15 hover:border-rosa-300'
+                      } ${!disponivel ? 'text-carvao/30 line-through' : ''}`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -213,6 +246,12 @@ export function ProductPage() {
               <Heart className="h-5 w-5" />
             </button>
           </div>
+
+          {outOfStock && selectedVariant && (
+            <p className="mt-3 flex items-center gap-1.5 text-sm text-carvao/60">
+              Esta combinação está esgotada. Experimente outra cor ou tamanho.
+            </p>
+          )}
 
           {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 5 && (
             <p className="mt-3 text-sm text-rosa-500">Últimas {selectedVariant.stock} unidades!</p>
