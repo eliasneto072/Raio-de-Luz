@@ -144,7 +144,9 @@ export function CheckoutPage() {
       clearCoupon();
 
       // Se o pagamento é online (não WhatsApp) e o Mercado Pago está ativo,
-      // redireciona para o checkout do MP. Senão, vai direto à confirmação.
+      // redireciona para o checkout do MP na mesma aba (mais seguro, sem bloqueio
+      // de pop-up, funciona em qualquer dispositivo). Em produção, o auto_return
+      // do MP traz o cliente de volta automaticamente após o pagamento.
       if (payment !== 'WHATSAPP') {
         const mpAtivo = await paymentStatus();
         if (mpAtivo) {
@@ -163,14 +165,15 @@ export function CheckoutPage() {
 
       navigate(`/pedido/${order.id}`, { state: { justCreated: true } });
     } catch (err) {
-      // Extrai uma mensagem legível de qualquer formato de erro
+      // Extrai a mensagem legível de qualquer formato (axios aninha em response.data)
+      const ax = err as any;
       const msg =
-        err instanceof Error
-          ? err.message
-          : typeof err === 'string'
-          ? err
-          : (err as any)?.message || (err as any)?.error || 'Não foi possível finalizar o pedido. Tente novamente.';
-      setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        ax?.response?.data?.error?.message ||  // formato padrão da nossa API
+        ax?.response?.data?.message ||
+        ax?.response?.data?.error ||
+        (err instanceof Error ? err.message : null) ||
+        'Não foi possível finalizar o pedido. Tente novamente.';
+      setError(typeof msg === 'string' ? msg : 'Não foi possível finalizar o pedido. Tente novamente.');
     }
   }
 

@@ -29,15 +29,17 @@ export function ProductCard({ product }: ProductCardProps) {
   const price = effectivePrice(product);
   const discount = hasDiscount(product);
   const image = product.coverImage || product.images?.[0]?.imageUrl;
-  const firstVariant = product.variants?.[0];
+  // Pega a primeira variante COM estoque (não simplesmente a primeira)
+  const availableVariant = product.variants?.find((v) => v.stock > 0);
   const soldOut = product.variants?.length > 0 && product.variants.every((v) => v.stock <= 0);
 
   async function handleQuickAdd(e: React.MouseEvent) {
     e.preventDefault();
-    if (!firstVariant || soldOut || adding) return;
+    // Só adiciona se houver uma variante com estoque
+    if (!availableVariant || soldOut || adding) return;
     setAdding(true);
     try {
-      await add(product.id, firstVariant.id, 1);
+      await add(product.id, availableVariant.id, 1);
       setAdded(true);
       setTimeout(() => setAdded(false), 1500);
     } finally {
@@ -95,7 +97,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Botão rápido de adicionar */}
-        {!soldOut && firstVariant && (
+        {!soldOut && availableVariant && (
           <button
             onClick={handleQuickAdd}
             disabled={adding}
