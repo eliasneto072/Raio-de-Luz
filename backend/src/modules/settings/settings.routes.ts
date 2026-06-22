@@ -29,5 +29,18 @@ export function settingsRouter() {
     ok(res, saved);
   });
 
+  // Pública: textos do site (barra de anúncio, hero)
+  router.get('/site-texts', async (_req, res) => {
+    const texts = await settingsService.getSiteTexts();
+    ok(res, texts);
+  });
+
+  // Admin: salva os textos do site
+  router.put('/admin/site-texts', authMiddleware, adminOnly, async (req, res) => {
+    const { announcementBar, heroEyebrow, heroTitle } = req.body;
+    const saved = await settingsService.setSiteTexts({ announcementBar, heroEyebrow, heroTitle });
+    ok(res, saved);
+  });
+
   return router;
 }

@@ -2,9 +2,65 @@ import { Router } from 'express';
 import { prisma } from '../../config/prisma';
 import { ok } from '../../shared/http/response';
 import { AppError } from '../../shared/errors/AppError';
+import { authMiddleware, adminOnly } from '../../middlewares/auth.middleware';
 
 export function couponsRouter() {
   const router = Router();
+
+  // ----- Admin: listar todos os cupons -----
+  router.get('/', authMiddleware, adminOnly, async (_req, res) => {
+    const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: 'desc' } });
+    ok(res, coupons.map((c) => ({
+      ...c,
+      discountValue: Number(c.discountValue),
+      minOrderValue: c.minOrderValue != null ? Number(c.minOrderValue) : null,
+    })));
+  });
+
+  // ----- Admin: criar cupom -----
+  router.post('/', authMiddleware, adminOnly, async (req, res) => {
+    const { code, description, discountType, discountValue, minOrderValue, maxUses, active, expiresAt } = req.body;
+    if (!code || !discountType || discountValue == null) {
+      throw new AppError('Código, tipo e valor do desconto são obrigatórios', 400, 'INVALID_INPUT');
+    }
+    const created = await prisma.coupon.create({
+      data: {
+        code: String(code).toUpperCase().trim(),
+        description: description || null,
+        discountType, // "PERCENTAGE" | "FIXED"
+        discountValue: Number(discountValue),
+        minOrderValue: minOrderValue ? Number(minOrderValue) : null,
+        maxUses: maxUses ? Number(maxUses) : null,
+        active: active !== false,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+      },
+    });
+    ok(res, created);
+  });
+
+  // ----- Admin: atualizar cupom -----
+  router.patch('/:id', authMiddleware, adminOnly, async (req, res) => {
+    const { description, discountType, discountValue, minOrderValue, maxUses, active, expiresAt } = req.body;
+    const updated = await prisma.coupon.update({
+      where: { id: req.params.id },
+      data: {
+        description: description ?? undefined,
+        discountType: discountType ?? undefined,
+        discountValue: discountValue != null ? Number(discountValue) : undefined,
+        minOrderValue: minOrderValue !== undefined ? (minOrderValue ? Number(minOrderValue) : null) : undefined,
+        maxUses: maxUses !== undefined ? (maxUses ? Number(maxUses) : null) : undefined,
+        active: active !== undefined ? active : undefined,
+        expiresAt: expiresAt !== undefined ? (expiresAt ? new Date(expiresAt) : null) : undefined,
+      },
+    });
+    ok(res, updated);
+  });
+
+  // ----- Admin: excluir cupom -----
+  router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
+    await prisma.coupon.delete({ where: { id: req.params.id } });
+    ok(res, { deleted: true });
+  });
 
   // Valida um cupom para um determinado subtotal (público, usado no carrinho)
   router.post('/validate', async (req, res) => {
