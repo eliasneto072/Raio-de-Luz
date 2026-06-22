@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, apiGet, apiPost, apiPatch } from '@/lib/api';
+import { api, apiGet, apiPost, apiPatch, apiPut } from '@/lib/api';
 import type { Order, OrderStatus, Paginated, Product } from '@/types';
 
 // ---- Estatísticas do dashboard ----
@@ -124,4 +124,26 @@ export async function downloadReport(
   link.click();
   link.remove();
   window.URL.revokeObjectURL(url);
+}
+
+// ---- Configuração de frete grátis (admin) ----
+export interface FreeShippingConfig {
+  enabled: boolean;
+  minPurchase: number;
+  cap: number;
+}
+
+export function useFreeShippingConfig() {
+  return useQuery({
+    queryKey: ['admin', 'free-shipping'],
+    queryFn: () => apiGet<FreeShippingConfig>('/settings/admin/free-shipping'),
+  });
+}
+
+export function useUpdateFreeShipping() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (config: FreeShippingConfig) => apiPut<FreeShippingConfig>('/settings/admin/free-shipping', config),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'free-shipping'] }),
+  });
 }

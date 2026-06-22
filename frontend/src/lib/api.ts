@@ -77,6 +77,11 @@ export async function apiPatch<T>(url: string, body?: object): Promise<T> {
   return data.data as T;
 }
 
+export async function apiPut<T>(url: string, body?: object): Promise<T> {
+  const { data } = await api.put(url, body);
+  return data.data as T;
+}
+
 export async function apiDelete<T>(url: string): Promise<T> {
   const { data } = await api.delete(url);
   return data?.data as T;

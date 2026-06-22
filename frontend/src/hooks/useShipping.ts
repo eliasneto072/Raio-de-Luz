@@ -7,6 +7,10 @@ export interface ShippingResult {
   deliveryTime: number;   // dias
   isFree: boolean;        // se ganhou frete grátis
   source: 'melhor_envio' | 'fallback';
+  // Incentivo de frete grátis
+  freeShippingThreshold: number | null; // valor mínimo da promoção (null se desligada)
+  amountToFreeShipping: number;          // quanto falta para o frete grátis (0 se já tem)
+  eligibleForFreeShipping: boolean;      // se este cliente pode ganhar (frete cabe no teto)
 }
 
 /** Verifica se o cálculo de frete online está disponível */
