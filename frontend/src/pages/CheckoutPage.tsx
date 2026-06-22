@@ -52,8 +52,8 @@ export function CheckoutPage() {
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
 
-  // Total com o frete calculado
-  const shippingCost = shipping ? shipping.price : baseTotals.shipping;
+  // Frete: 0 até ser calculado (após CEP). Só então entra no total.
+  const shippingCost = shipping ? shipping.price : 0;
   const totals = {
     ...baseTotals,
     shipping: shippingCost,
@@ -106,14 +106,20 @@ export function CheckoutPage() {
   }
 
   const addressValid = address.street && address.number && address.city && address.state;
-  const canSubmit = identValid && addressValid && !createOrder.isPending;
+  // Exige também que o frete tenha sido calculado (cliente digitou CEP válido)
+  const canSubmit = identValid && addressValid && !!shipping && !createOrder.isPending;
 
   async function handleSubmit() {
     setError(null);
-    if (!canSubmit) {
+    if (!identValid || !addressValid) {
       setError('Preencha seus dados e o endereço de entrega.');
       return;
     }
+    if (!shipping) {
+      setError('Informe seu CEP para calcularmos o frete antes de finalizar.');
+      return;
+    }
+    if (createOrder.isPending) return;
     try {
       const order = await createOrder.mutateAsync({
         items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
@@ -276,11 +282,15 @@ export function CheckoutPage() {
               ))}
             </div>
             <div className="border-t border-rosa-100 pt-4">
-              <OrderSummary totals={totals} couponCode={coupon?.code} />
+              <OrderSummary totals={totals} couponCode={coupon?.code} showShipping={!!shipping} />
             </div>
             {error && <p className="text-sm text-rosa-500">{error}</p>}
             <button onClick={handleSubmit} disabled={!canSubmit} className="btn-primary w-full">
-              {createOrder.isPending ? 'Processando...' : `Confirmar pedido · ${formatCurrency(totals.total)}`}
+              {createOrder.isPending
+                ? 'Processando...'
+                : !shipping
+                ? 'Informe o CEP para continuar'
+                : `Confirmar pedido · ${formatCurrency(totals.total)}`}
             </button>
             <p className="text-center text-xs text-carvao/40">
               Ao confirmar, você receberá os detalhes por e-mail e WhatsApp ✦
