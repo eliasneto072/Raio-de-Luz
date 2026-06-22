@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Package, FileText, ArrowLeft, Truck, Ticket, Type } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, FileText, ArrowLeft, Truck, Ticket, Type, FolderTree } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '@/store/auth';
 
@@ -8,6 +8,7 @@ const NAV = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/admin/pedidos', label: 'Pedidos', icon: ShoppingBag },
   { to: '/admin/produtos', label: 'Produtos', icon: Package },
+  { to: '/admin/categorias', label: 'Categorias', icon: FolderTree },
   { to: '/admin/cupons', label: 'Cupons', icon: Ticket },
   { to: '/admin/frete', label: 'Frete', icon: Truck },
   { to: '/admin/personalizar', label: 'Personalizar', icon: Type },

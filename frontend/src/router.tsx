@@ -8,11 +8,13 @@ import { CartPage } from '@/pages/CartPage';
 import { CheckoutPage } from '@/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/pages/OrderConfirmationPage';
 import { LoginPage } from '@/pages/LoginPage';
+import { AboutPage } from '@/pages/AboutPage';
 import { AccountPage } from '@/pages/AccountPage';
 import { AdminLayout } from '@/pages/admin/AdminLayout';
 import { AdminDashboard } from '@/pages/admin/AdminDashboard';
 import { AdminOrders } from '@/pages/admin/AdminOrders';
 import { AdminProducts } from '@/pages/admin/AdminProducts';
+import { AdminCategories } from '@/pages/admin/AdminCategories';
 import { AdminCoupons } from '@/pages/admin/AdminCoupons';
 import { AdminShipping } from '@/pages/admin/AdminShipping';
 import { AdminAppearance } from '@/pages/admin/AdminAppearance';
@@ -32,6 +34,7 @@ export const router = createBrowserRouter([
       { path: 'checkout', element: <CheckoutPage /> },
       { path: 'pedido/:id', element: <OrderConfirmationPage /> },
       { path: 'entrar', element: <LoginPage /> },
+      { path: 'sobre', element: <AboutPage /> },
       { path: 'conta', element: <AccountPage /> },
       { path: 'conta/pedidos', element: <AccountPage initialTab="pedidos" /> },
       { path: 'conta/favoritos', element: <AccountPage initialTab="favoritos" /> },
@@ -46,6 +49,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: 'pedidos', element: <AdminOrders /> },
       { path: 'produtos', element: <AdminProducts /> },
+      { path: 'categorias', element: <AdminCategories /> },
       { path: 'cupons', element: <AdminCoupons /> },
       { path: 'frete', element: <AdminShipping /> },
       { path: 'personalizar', element: <AdminAppearance /> },

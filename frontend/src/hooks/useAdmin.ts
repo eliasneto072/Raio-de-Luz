@@ -226,3 +226,63 @@ export function useUpdateSiteTexts() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'site-texts'] }),
   });
 }
+
+// ---- Categorias (admin) ----
+export interface AdminCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  active: boolean;
+  sortOrder: number;
+  _count?: { products: number };
+}
+
+export interface CategoryInput {
+  name: string;
+  description?: string;
+  imageUrl?: string | null;
+  active?: boolean;
+}
+
+export function useAdminCategories() {
+  return useQuery({
+    queryKey: ['admin', 'categories'],
+    queryFn: () => apiGet<AdminCategory[]>('/categories/all'),
+  });
+}
+
+export function useCreateCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CategoryInput) => apiPost<AdminCategory>('/categories', data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'categories'] });
+      qc.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+}
+
+export function useUpdateCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<CategoryInput> }) =>
+      apiPatch<AdminCategory>(`/categories/${id}`, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'categories'] });
+      qc.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+}
+
+export function useDeleteCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiDelete(`/categories/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'categories'] });
+      qc.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+}

@@ -53,6 +53,7 @@ export function Footer() {
             <li><Link to="/produtos" className="hover:text-dourado-300">Novidades</Link></li>
             <li><Link to="/produtos?destaque=1" className="hover:text-dourado-300">Destaques</Link></li>
             <li><Link to="/categorias" className="hover:text-dourado-300">Categorias</Link></li>
+            <li><Link to="/sobre" className="hover:text-dourado-300">Sobre nós</Link></li>
           </ul>
         </div>
 
