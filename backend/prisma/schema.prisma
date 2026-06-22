@@ -152,6 +152,12 @@ model Product {
   isNew             Boolean         @default(true)
 
   coverImage        String?
+
+  // Frete (peso em kg, dimensões em cm) — padrões típicos de roupa
+  weight            Float           @default(0.3)
+  height            Float           @default(4)
+  width             Float           @default(20)
+  length            Float           @default(20)
   
   // Metadata
   totalSold         Int             @default(0)

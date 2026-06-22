@@ -31,6 +31,11 @@ export const env = {
   MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN || '',
   MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY || '',
 
+  // Melhor Envio (cálculo de frete)
+  MELHOR_ENVIO_TOKEN: process.env.MELHOR_ENVIO_TOKEN || '',
+  MELHOR_ENVIO_SANDBOX: process.env.MELHOR_ENVIO_SANDBOX || 'true', // 'true' usa ambiente de teste
+  STORE_CEP_ORIGEM: process.env.STORE_CEP_ORIGEM || '', // CEP de onde a loja envia
+
   // Frontend URL (para links em emails)
   FRONTEND_URL: process.env.FRONTEND_URL,
 };
