@@ -35,7 +35,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-rosa-100 bg-creme/90 backdrop-blur-md">
       {/* Faixa de anúncio */}
       <div className="bg-rosa-500 py-2 text-center text-xs font-medium text-dourado-300">
-        ✦ Frete grátis acima de R$ 250 · Parcele em até 6x sem juros
+        ✦ Adicione itens ao carrinho e ganhe frete grátis · Parcele em até 6x sem juros
       </div>
 
       <div className="container-rl flex h-20 items-center justify-between gap-4">

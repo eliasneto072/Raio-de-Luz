@@ -276,7 +276,7 @@ export function CheckoutPage() {
               ))}
             </div>
             <div className="border-t border-rosa-100 pt-4">
-              <OrderSummary totals={totals} couponCode={coupon?.code} showFreeShippingHint={false} />
+              <OrderSummary totals={totals} couponCode={coupon?.code} />
             </div>
             {error && <p className="text-sm text-rosa-500">{error}</p>}
             <button onClick={handleSubmit} disabled={!canSubmit} className="btn-primary w-full">

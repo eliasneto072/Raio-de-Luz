@@ -50,7 +50,8 @@ async function main() {
     { name: 'Saias', description: 'Saias modernas e versáteis.', sortOrder: 3 },
     { name: 'Calças', description: 'Conforto e estilo do dia a dia ao trabalho.', sortOrder: 4 },
     { name: 'Conjuntos', description: 'Looks completos pensados para você.', sortOrder: 5 },
-    { name: 'Acessórios', description: 'Os detalhes que fazem a diferença.', sortOrder: 6 },
+    { name: 'Calçados', description: 'Sapatos, sandálias e tênis para completar o look.', sortOrder: 6 },
+    { name: 'Acessórios', description: 'Os detalhes que fazem a diferença.', sortOrder: 7 },
   ];
 
   const categorias: Record<string, string> = {};

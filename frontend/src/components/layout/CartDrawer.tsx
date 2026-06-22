@@ -2,14 +2,12 @@ import { X, ShoppingBag, Minus, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '@/store/cart';
 import { formatCurrency, effectivePrice } from '@/lib/format';
-import { calcSubtotal, amountToFreeShipping } from '@/lib/cart';
+import { calcSubtotal } from '@/lib/cart';
 
 export function CartDrawer() {
   const { isOpen, close, items, remove, updateQty } = useCart();
 
   const subtotal = calcSubtotal(items);
-  const missing = amountToFreeShipping(subtotal);
-  const progress = Math.min(100, (subtotal / 250) * 100);
 
   return (
     <>
@@ -47,20 +45,6 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            {/* Barra de frete grátis */}
-            <div className="border-b border-rosa-100 px-6 py-4">
-              {missing > 0 ? (
-                <p className="text-sm text-carvao/70">
-                  Falta <span className="font-semibold text-rosa-500">{formatCurrency(missing)}</span> para o frete grátis ✦
-                </p>
-              ) : (
-                <p className="text-sm font-medium text-green-600">Você ganhou frete grátis! ✦</p>
-              )}
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-rosa-100">
-                <div className="h-full rounded-full bg-rosa-500 transition-all" style={{ width: `${progress}%` }} />
-              </div>
-            </div>
-
             <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-4">

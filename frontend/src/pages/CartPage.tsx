@@ -128,7 +128,7 @@ export function CartPage() {
           <div className="sticky top-28 space-y-5 rounded-xl2 border border-rosa-100 bg-white p-6 shadow-soft">
             <h2 className="font-display text-xl font-semibold">Resumo</h2>
             <CouponField subtotal={subtotal} />
-            <OrderSummary totals={totals} couponCode={coupon?.code} />
+            <OrderSummary totals={totals} couponCode={coupon?.code} showShipping={false} />
             <Link to="/checkout" className="btn-primary w-full">
               Finalizar compra
             </Link>

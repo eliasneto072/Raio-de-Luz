@@ -3,6 +3,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { ShoppingBag, Check, Heart, Minus, Plus, ChevronLeft, Truck, RefreshCw, ShieldCheck } from 'lucide-react';
 import { useProduct } from '@/hooks/useProducts';
 import { useCart } from '@/store/cart';
+import { useFavorites } from '@/store/favorites';
+import { useAuth } from '@/store/auth';
 import { formatCurrency, effectivePrice, hasDiscount } from '@/lib/format';
 import type { ProductVariant } from '@/types';
 
@@ -11,6 +13,8 @@ export function ProductPage() {
   const navigate = useNavigate();
   const { data: product, isLoading, isError } = useProduct(slug || '');
   const add = useCart((s) => s.add);
+  const { user } = useAuth();
+  const { isFavorite, toggle } = useFavorites();
 
   const [activeImage, setActiveImage] = useState(0);
   const [color, setColor] = useState<string | null>(null);
@@ -240,10 +244,22 @@ export function ProductPage() {
             </button>
 
             <button
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-carvao/15 transition-colors hover:border-rosa-500 hover:text-rosa-500"
-              aria-label="Favoritar"
+              onClick={() => {
+                if (!user) {
+                  navigate('/entrar');
+                  return;
+                }
+                if (product) toggle(product.id);
+              }}
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                product && isFavorite(product.id)
+                  ? 'border-rosa-500 bg-rosa-50 text-rosa-500'
+                  : 'border-carvao/15 hover:border-rosa-500 hover:text-rosa-500'
+              }`}
+              aria-label={product && isFavorite(product.id) ? 'Remover dos favoritos' : 'Favoritar'}
+              title={!user ? 'Entre para favoritar' : undefined}
             >
-              <Heart className="h-5 w-5" />
+              <Heart className="h-5 w-5" fill={product && isFavorite(product.id) ? 'currentColor' : 'none'} />
             </button>
           </div>
 
