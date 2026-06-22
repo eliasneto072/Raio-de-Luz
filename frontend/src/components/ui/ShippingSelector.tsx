@@ -1,16 +1,15 @@
 import { Truck, Loader2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/format';
-import type { ShippingOption } from '@/hooks/useShipping';
+import type { ShippingResult } from '@/hooks/useShipping';
 
-interface ShippingSelectorProps {
-  options: ShippingOption[];
-  selected?: ShippingOption;
-  onSelect: (opt: ShippingOption) => void;
+interface ShippingDisplayProps {
+  result?: ShippingResult;
   loading?: boolean;
   error?: string | null;
 }
 
-export function ShippingSelector({ options, selected, onSelect, loading, error }: ShippingSelectorProps) {
+// Mostra o frete CALCULADO pelo sistema (cliente não escolhe)
+export function ShippingSelector({ result, loading, error }: ShippingDisplayProps) {
   if (loading) {
     return (
       <div className="flex items-center gap-2 rounded-lg bg-creme px-4 py-3 text-sm text-carvao/60">
@@ -23,36 +22,29 @@ export function ShippingSelector({ options, selected, onSelect, loading, error }
     return <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>;
   }
 
-  if (options.length === 0) return null;
+  if (!result) return null;
 
   return (
-    <div className="space-y-2">
-      <p className="flex items-center gap-1.5 text-sm font-semibold text-carvao/80">
-        <Truck className="h-4 w-4" /> Escolha o frete
-      </p>
-      {options.map((opt) => {
-        const isSelected = selected?.id === opt.id;
-        return (
-          <button
-            key={opt.id}
-            type="button"
-            onClick={() => onSelect(opt)}
-            className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
-              isSelected ? 'border-rosa-500 bg-rosa-50' : 'border-carvao/15 hover:border-rosa-300'
-            }`}
-          >
-            <div>
-              <p className="font-medium text-carvao">
-                {opt.company} {opt.name}
-              </p>
-              <p className="text-xs text-carvao/50">
-                Entrega em até {opt.deliveryTime} {opt.deliveryTime === 1 ? 'dia útil' : 'dias úteis'}
-              </p>
-            </div>
-            <span className="font-semibold text-carvao">{formatCurrency(opt.price)}</span>
-          </button>
-        );
-      })}
+    <div className="flex items-center justify-between rounded-lg border border-rosa-100 bg-white px-4 py-3">
+      <div className="flex items-center gap-2">
+        <Truck className="h-4 w-4 text-rosa-500" />
+        <div>
+          <p className="text-sm font-medium text-carvao">Entrega via {result.method}</p>
+          <p className="text-xs text-carvao/50">
+            Prazo estimado: {result.deliveryTime} {result.deliveryTime === 1 ? 'dia útil' : 'dias úteis'}
+          </p>
+        </div>
+      </div>
+      <div className="text-right">
+        {result.isFree ? (
+          <div>
+            <span className="text-sm font-semibold text-green-600">Grátis</span>
+            <p className="text-xs text-carvao/40 line-through">{formatCurrency(result.originalPrice)}</p>
+          </div>
+        ) : (
+          <span className="text-sm font-semibold text-carvao">{formatCurrency(result.price)}</span>
+        )}
+      </div>
     </div>
   );
 }

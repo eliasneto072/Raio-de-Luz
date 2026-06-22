@@ -1,11 +1,12 @@
 import { apiPost, apiGet } from '@/lib/api';
 
-export interface ShippingOption {
-  id: number;
-  name: string;        // ex: "PAC", "SEDEX"
-  company: string;     // ex: "Correios"
-  price: number;
-  deliveryTime: number; // dias
+export interface ShippingResult {
+  price: number;          // valor a cobrar (0 se frete grátis)
+  originalPrice: number;  // valor real do frete (referência)
+  method: string;         // ex: "Correios SEDEX"
+  deliveryTime: number;   // dias
+  isFree: boolean;        // se ganhou frete grátis
+  source: 'melhor_envio' | 'fallback';
 }
 
 /** Verifica se o cálculo de frete online está disponível */
@@ -18,11 +19,12 @@ export async function shippingStatus(): Promise<boolean> {
   }
 }
 
-/** Calcula opções de frete para um CEP e itens do carrinho */
+/** Calcula o frete automaticamente (sistema decide, cliente não escolhe) */
 export async function calculateShipping(
   cep: string,
-  items: { productId: string; quantity: number }[]
-): Promise<ShippingOption[]> {
-  const { options } = await apiPost<{ options: ShippingOption[] }>('/shipping/calculate', { cep, items });
-  return options ?? [];
+  items: { productId: string; quantity: number }[],
+  uf: string,
+  subtotal: number
+): Promise<ShippingResult> {
+  return apiPost<ShippingResult>('/shipping/calculate', { cep, items, uf, subtotal });
 }

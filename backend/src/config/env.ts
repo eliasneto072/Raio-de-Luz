@@ -33,8 +33,12 @@ export const env = {
 
   // Melhor Envio (cálculo de frete)
   MELHOR_ENVIO_TOKEN: process.env.MELHOR_ENVIO_TOKEN || '',
-  MELHOR_ENVIO_SANDBOX: process.env.MELHOR_ENVIO_SANDBOX || 'true', // 'true' usa ambiente de teste
-  STORE_CEP_ORIGEM: process.env.STORE_CEP_ORIGEM || '', // CEP de onde a loja envia
+  MELHOR_ENVIO_SANDBOX: process.env.MELHOR_ENVIO_SANDBOX || 'true',
+  STORE_CEP_ORIGEM: process.env.STORE_CEP_ORIGEM || '',
+
+  // Frete grátis (regra inteligente — só dá grátis se compensar)
+  FRETE_GRATIS_MIN_COMPRA: process.env.FRETE_GRATIS_MIN_COMPRA || '250',
+  FRETE_GRATIS_TETO: process.env.FRETE_GRATIS_TETO || '30',
 
   // Frontend URL (para links em emails)
   FRONTEND_URL: process.env.FRONTEND_URL,

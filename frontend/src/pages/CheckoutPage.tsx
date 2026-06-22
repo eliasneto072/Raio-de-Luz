@@ -9,7 +9,7 @@ import { formatCurrency } from '@/lib/format';
 import { lookupCep, maskCep } from '@/lib/cep';
 import { OrderSummary } from '@/components/ui/OrderSummary';
 import { ShippingSelector } from '@/components/ui/ShippingSelector';
-import { calculateShipping, type ShippingOption } from '@/hooks/useShipping';
+import { calculateShipping, type ShippingResult } from '@/hooks/useShipping';
 import { IdentificationStep, type Identification } from '@/components/checkout/IdentificationStep';
 import { useCreateOrder, startPayment, paymentStatus } from '@/hooks/useOrders';
 import type { PaymentMethod } from '@/types';
@@ -47,13 +47,13 @@ export function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Frete
-  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
-  const [selectedShipping, setSelectedShipping] = useState<ShippingOption | undefined>();
+  // Frete (calculado pelo sistema — cliente não escolhe)
+  const [shipping, setShipping] = useState<ShippingResult | undefined>();
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
 
-  // Total com o frete escolhido (Melhor Envio) ou o frete base como fallback
-  const shippingCost = selectedShipping ? selectedShipping.price : baseTotals.shipping;
+  // Total com o frete calculado
+  const shippingCost = shipping ? shipping.price : baseTotals.shipping;
   const totals = {
     ...baseTotals,
     shipping: shippingCost,
@@ -78,31 +78,28 @@ export function CheckoutPage() {
       setCepLoading(false);
       if (result) {
         setAddress((a) => ({ ...a, street: result.street, district: result.district, city: result.city, state: result.state }));
-        // Dispara o cálculo de frete com o CEP válido
-        calcFrete(masked);
+        // Dispara o cálculo de frete com o CEP e a UF
+        calcFrete(masked, result.state);
       }
     }
   }
 
-  async function calcFrete(cep: string) {
+  async function calcFrete(cep: string, uf: string) {
     if (items.length === 0) return;
     setShippingLoading(true);
     setShippingError(null);
-    setSelectedShipping(undefined);
+    setShipping(undefined);
     try {
-      const opts = await calculateShipping(
+      const result = await calculateShipping(
         cep,
-        items.map((i) => ({ productId: i.productId, quantity: i.quantity }))
+        items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+        uf,
+        baseTotals.subtotal
       );
-      setShippingOptions(opts);
-      // Pré-seleciona a opção mais barata
-      if (opts.length > 0) {
-        const cheapest = [...opts].sort((a, b) => a.price - b.price)[0];
-        setSelectedShipping(cheapest);
-      }
+      setShipping(result);
     } catch (e) {
       setShippingError((e as Error).message || 'Não foi possível calcular o frete');
-      setShippingOptions([]);
+      setShipping(undefined);
     } finally {
       setShippingLoading(false);
     }
@@ -133,8 +130,8 @@ export function CheckoutPage() {
         },
         paymentMethod: payment,
         couponCode: coupon?.code,
-        shippingCost: selectedShipping?.price ?? 0,
-        shippingMethod: selectedShipping ? `${selectedShipping.company} ${selectedShipping.name}` : undefined,
+        shippingCost: shipping?.price ?? 0,
+        shippingMethod: shipping?.method,
         notes,
       });
       clear();
@@ -212,12 +209,11 @@ export function CheckoutPage() {
             </div>
 
             {/* Opções de frete (aparecem após CEP válido) */}
-            {(shippingLoading || shippingError || shippingOptions.length > 0) && (
+            {/* Frete calculado pelo sistema (aparece após CEP válido) */}
+            {(shippingLoading || shippingError || shipping) && (
               <div className="mt-5">
                 <ShippingSelector
-                  options={shippingOptions}
-                  selected={selectedShipping}
-                  onSelect={setSelectedShipping}
+                  result={shipping}
                   loading={shippingLoading}
                   error={shippingError}
                 />
