@@ -11,6 +11,7 @@ import { profileRouter } from '../modules/profile/profile.routes';
 import { uploadRouter } from '../modules/upload/upload.routes';
 import { paymentsRouter } from '../modules/payments/payments.routes';
 import { shippingRouter } from '../modules/shipping/shipping.routes';
+import { settingsRouter } from '../modules/settings/settings.routes';
 import { notificationsRouter } from '../modules/notifications/notifications.routes';
 import { reportsRouter } from '../modules/reports/reports.routes';
 
@@ -27,6 +28,7 @@ export function setupRoutes(app: Express) {
   app.use('/api/upload', uploadRouter());
   app.use('/api/payments', paymentsRouter());
   app.use('/api/shipping', shippingRouter());
+  app.use('/api/settings', settingsRouter());
   app.use('/api/notifications', notificationsRouter());
   app.use('/api/reports', reportsRouter());
 }

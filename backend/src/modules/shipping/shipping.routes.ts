@@ -1,14 +1,8 @@
 import { Router } from 'express';
 import { shippingService } from './shipping.service';
+import { settingsService } from '../settings/settings.service';
 import { ok } from '../../shared/http/response';
 import { AppError } from '../../shared/errors/AppError';
-import { env } from '../../config/env';
-
-// ----- Regras de frete grátis (ajustáveis) -----
-// Frete grátis só se a compra atingir o mínimo E o frete for até o teto.
-// Isso evita prejuízo: compra de R$251 com frete de R$180 NÃO ganha frete grátis.
-const FRETE_GRATIS_MIN_COMPRA = Number(env.FRETE_GRATIS_MIN_COMPRA || 250);
-const FRETE_GRATIS_TETO = Number(env.FRETE_GRATIS_TETO || 30);
 
 export function shippingRouter() {
   const router = Router();
@@ -34,10 +28,18 @@ export function shippingRouter() {
     try {
       const result = await shippingService.calculate(cep, items, uf);
 
-      // Frete grátis inteligente: só se compensa
-      const compraQualifica = (subtotal ?? 0) >= FRETE_GRATIS_MIN_COMPRA;
-      const freteBaixo = result.price <= FRETE_GRATIS_TETO;
+      // Lê a regra de frete grátis configurada pela loja (admin)
+      const promo = await settingsService.getFreeShipping();
+      const compraQualifica = promo.enabled && (subtotal ?? 0) >= promo.minPurchase;
+      const freteBaixo = result.price <= promo.cap;
       const isFree = compraQualifica && freteBaixo;
+
+      // Quanto falta para destravar o frete grátis (só faz sentido se a promoção está ligada
+      // e o frete do cliente cabe no teto — senão, juntar mais não vai dar grátis pra ele)
+      const elegivelParaIncentivo = promo.enabled && freteBaixo;
+      const faltaParaGratis = elegivelParaIncentivo
+        ? Math.max(0, promo.minPurchase - (subtotal ?? 0))
+        : 0;
 
       ok(res, {
         price: isFree ? 0 : result.price,
@@ -46,6 +48,10 @@ export function shippingRouter() {
         deliveryTime: result.deliveryTime,
         isFree,
         source: result.source,
+        // Incentivo: quanto falta para frete grátis (0 se já tem ou se não se aplica)
+        freeShippingThreshold: promo.enabled ? promo.minPurchase : null,
+        amountToFreeShipping: faltaParaGratis,
+        eligibleForFreeShipping: elegivelParaIncentivo,
       });
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || 'Não foi possível calcular o frete';
