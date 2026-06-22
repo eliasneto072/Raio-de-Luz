@@ -8,6 +8,8 @@ import { calcTotals, calcSubtotal } from '@/lib/cart';
 import { formatCurrency } from '@/lib/format';
 import { lookupCep, maskCep } from '@/lib/cep';
 import { OrderSummary } from '@/components/ui/OrderSummary';
+import { ShippingSelector } from '@/components/ui/ShippingSelector';
+import { calculateShipping, type ShippingOption } from '@/hooks/useShipping';
 import { IdentificationStep, type Identification } from '@/components/checkout/IdentificationStep';
 import { useCreateOrder, startPayment, paymentStatus } from '@/hooks/useOrders';
 import type { PaymentMethod } from '@/types';
@@ -27,7 +29,7 @@ export function CheckoutPage() {
   const createOrder = useCreateOrder();
 
   const subtotal = calcSubtotal(items);
-  const totals = calcTotals(items, coupon?.discount ?? 0);
+  const baseTotals = calcTotals(items, coupon?.discount ?? 0);
 
   const [ident, setIdent] = useState<Identification>({
     name: user?.name ?? '',
@@ -43,6 +45,20 @@ export function CheckoutPage() {
   const [payment, setPayment] = useState<PaymentMethod>('PIX');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Frete
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [selectedShipping, setSelectedShipping] = useState<ShippingOption | undefined>();
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
+
+  // Total com o frete escolhido (Melhor Envio) ou o frete base como fallback
+  const shippingCost = selectedShipping ? selectedShipping.price : baseTotals.shipping;
+  const totals = {
+    ...baseTotals,
+    shipping: shippingCost,
+    total: baseTotals.subtotal - baseTotals.discount + shippingCost,
+  };
 
   if (items.length === 0 && !createOrder.isSuccess) {
     return (
@@ -62,7 +78,33 @@ export function CheckoutPage() {
       setCepLoading(false);
       if (result) {
         setAddress((a) => ({ ...a, street: result.street, district: result.district, city: result.city, state: result.state }));
+        // Dispara o cálculo de frete com o CEP válido
+        calcFrete(masked);
       }
+    }
+  }
+
+  async function calcFrete(cep: string) {
+    if (items.length === 0) return;
+    setShippingLoading(true);
+    setShippingError(null);
+    setSelectedShipping(undefined);
+    try {
+      const opts = await calculateShipping(
+        cep,
+        items.map((i) => ({ productId: i.productId, quantity: i.quantity }))
+      );
+      setShippingOptions(opts);
+      // Pré-seleciona a opção mais barata
+      if (opts.length > 0) {
+        const cheapest = [...opts].sort((a, b) => a.price - b.price)[0];
+        setSelectedShipping(cheapest);
+      }
+    } catch (e) {
+      setShippingError((e as Error).message || 'Não foi possível calcular o frete');
+      setShippingOptions([]);
+    } finally {
+      setShippingLoading(false);
     }
   }
 
@@ -91,6 +133,8 @@ export function CheckoutPage() {
         },
         paymentMethod: payment,
         couponCode: coupon?.code,
+        shippingCost: selectedShipping?.price ?? 0,
+        shippingMethod: selectedShipping ? `${selectedShipping.company} ${selectedShipping.name}` : undefined,
         notes,
       });
       clear();
@@ -166,6 +210,19 @@ export function CheckoutPage() {
               <Input label="Cidade" value={address.city} onChange={(v) => setAddress((a) => ({ ...a, city: v }))} />
               <Input label="Estado" value={address.state} onChange={(v) => setAddress((a) => ({ ...a, state: v }))} />
             </div>
+
+            {/* Opções de frete (aparecem após CEP válido) */}
+            {(shippingLoading || shippingError || shippingOptions.length > 0) && (
+              <div className="mt-5">
+                <ShippingSelector
+                  options={shippingOptions}
+                  selected={selectedShipping}
+                  onSelect={setSelectedShipping}
+                  loading={shippingLoading}
+                  error={shippingError}
+                />
+              </div>
+            )}
           </section>
 
           {/* 3. Pagamento */}

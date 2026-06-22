@@ -5,7 +5,7 @@ import { notificationService } from '../notifications/notifications.service';
 
 export class OrdersService {
   async create(input: any) {
-    const { items, customerName, customerEmail, customerPhone, addressData, paymentMethod, couponCode, notes, userId } = input;
+    const { items, customerName, customerEmail, customerPhone, addressData, paymentMethod, couponCode, shippingCost: shippingInput, shippingMethod, notes, userId } = input;
 
     // Calcular subtotal
     let subtotal = 0;
@@ -47,7 +47,7 @@ export class OrdersService {
       }
     }
 
-    const shippingCost = 0; // Calculado à parte
+    const shippingCost = Number(shippingInput) || 0; // frete escolhido no checkout
     const total = subtotal - discount + shippingCost;
 
     const order = await prisma.$transaction(async (tx) => {
