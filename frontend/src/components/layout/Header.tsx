@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuth } from '@/store/auth';
 import { useCart } from '@/store/cart';
+import { useSiteTexts } from '@/store/siteTexts';
 
 const NAV = [
   { to: '/produtos', label: 'Novidades' },
@@ -16,6 +17,7 @@ const NAV = [
 export function Header() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const announcementBar = useSiteTexts((s) => s.texts.announcementBar);
   const itemCount = useCart((s) => s.items.reduce((acc, i) => acc + i.quantity, 0));
   const openCart = useCart((s) => s.open);
 
@@ -35,7 +37,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-rosa-100 bg-creme/90 backdrop-blur-md">
       {/* Faixa de anúncio */}
       <div className="bg-rosa-500 py-2 text-center text-xs font-medium text-dourado-300">
-        ✦ Adicione itens ao carrinho e ganhe frete grátis · Parcele em até 6x sem juros
+        ✦ {announcementBar}
       </div>
 
       <div className="container-rl flex h-20 items-center justify-between gap-4">

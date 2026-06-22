@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, apiGet, apiPost, apiPatch, apiPut } from '@/lib/api';
+import { api, apiGet, apiPost, apiPatch, apiPut, apiDelete } from '@/lib/api';
 import type { Order, OrderStatus, Paginated, Product } from '@/types';
 
 // ---- Estatísticas do dashboard ----
@@ -145,5 +145,84 @@ export function useUpdateFreeShipping() {
   return useMutation({
     mutationFn: (config: FreeShippingConfig) => apiPut<FreeShippingConfig>('/settings/admin/free-shipping', config),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'free-shipping'] }),
+  });
+}
+
+// ---- Cupons (admin) ----
+export interface Coupon {
+  id: string;
+  code: string;
+  description?: string | null;
+  discountType: 'PERCENTAGE' | 'FIXED';
+  discountValue: number;
+  minOrderValue?: number | null;
+  maxUses?: number | null;
+  usedCount: number;
+  active: boolean;
+  expiresAt?: string | null;
+}
+
+export interface CouponInput {
+  code: string;
+  description?: string;
+  discountType: 'PERCENTAGE' | 'FIXED';
+  discountValue: number;
+  minOrderValue?: number | null;
+  maxUses?: number | null;
+  active: boolean;
+  expiresAt?: string | null;
+}
+
+export function useAdminCoupons() {
+  return useQuery({
+    queryKey: ['admin', 'coupons'],
+    queryFn: () => apiGet<Coupon[]>('/coupons'),
+  });
+}
+
+export function useCreateCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CouponInput) => apiPost<Coupon>('/coupons', data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'coupons'] }),
+  });
+}
+
+export function useUpdateCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<CouponInput> }) =>
+      apiPatch<Coupon>(`/coupons/${id}`, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'coupons'] }),
+  });
+}
+
+export function useDeleteCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiDelete(`/coupons/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'coupons'] }),
+  });
+}
+
+// ---- Textos do site (admin) ----
+export interface SiteTexts {
+  announcementBar: string;
+  heroEyebrow: string;
+  heroTitle: string;
+}
+
+export function useSiteTextsAdmin() {
+  return useQuery({
+    queryKey: ['admin', 'site-texts'],
+    queryFn: () => apiGet<SiteTexts>('/settings/site-texts'),
+  });
+}
+
+export function useUpdateSiteTexts() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (texts: SiteTexts) => apiPut<SiteTexts>('/settings/admin/site-texts', texts),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'site-texts'] }),
   });
 }

@@ -6,6 +6,7 @@ import { useAuth } from './store/auth';
 import { useCart } from './store/cart';
 import { useFavorites } from './store/favorites';
 import { useConfig } from './store/config';
+import { useSiteTexts } from './store/siteTexts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,12 +21,14 @@ export function App() {
   const fetchFavIds = useFavorites((s) => s.fetchIds);
   const clearFavs = useFavorites((s) => s.clear);
   const fetchConfig = useConfig((s) => s.fetch);
+  const fetchTexts = useSiteTexts((s) => s.fetch);
 
   useEffect(() => {
     initAuth();
     fetchCart();
     fetchConfig();
-  }, [initAuth, fetchCart, fetchConfig]);
+    fetchTexts();
+  }, [initAuth, fetchCart, fetchConfig, fetchTexts]);
 
   // Carrega favoritos quando há usuário; limpa ao sair
   useEffect(() => {

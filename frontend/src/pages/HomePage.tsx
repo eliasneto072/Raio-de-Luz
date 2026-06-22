@@ -2,11 +2,13 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useFeaturedProducts, useNewProducts, useCategories } from '@/hooks/useProducts';
 import { ProductGrid } from '@/components/ui/ProductGrid';
+import { useSiteTexts } from '@/store/siteTexts';
 
 export function HomePage() {
   const featured = useFeaturedProducts();
   const novidades = useNewProducts();
   const categorias = useCategories();
+  const { heroEyebrow, heroTitle } = useSiteTexts((s) => s.texts);
 
   return (
     <>
@@ -42,8 +44,8 @@ export function HomePage() {
               </span>
             </div>
             <div className="mt-8 rounded-xl2 bg-dourado-300 px-6 py-4 text-carvao shadow-soft">
-              <p className="font-display text-2xl font-semibold">Nova Coleção</p>
-              <p className="text-sm">Outono / Inverno</p>
+              <p className="font-display text-2xl font-semibold">{heroEyebrow}</p>
+              <p className="text-sm">{heroTitle}</p>
             </div>
           </div>
         </div>
