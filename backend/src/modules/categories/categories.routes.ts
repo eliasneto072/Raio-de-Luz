@@ -11,6 +11,15 @@ export function categoriesRouter() {
     ok(res, cats);
   });
 
+  // Admin: lista TODAS as categorias (inclusive inativas) com contagem de produtos
+  router.get('/all', authMiddleware, adminOnly, async (_req, res) => {
+    const cats = await prisma.category.findMany({
+      orderBy: { sortOrder: 'asc' },
+      include: { _count: { select: { products: true } } },
+    });
+    ok(res, cats);
+  });
+
   router.post('/', authMiddleware, adminOnly, async (req, res) => {
     const { name, description, imageUrl } = req.body;
     const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-');
