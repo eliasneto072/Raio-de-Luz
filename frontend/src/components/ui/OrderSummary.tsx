@@ -4,12 +4,11 @@ import type { CartTotals } from '@/lib/cart';
 interface OrderSummaryProps {
   totals: CartTotals;
   couponCode?: string | null;
-  // Mostrar a linha de frete? No carrinho é false (frete só é calculado no checkout)
+  // No carrinho é false: não mostra frete (só é calculado no checkout, após o CEP)
   showShipping?: boolean;
 }
 
 export function OrderSummary({ totals, couponCode, showShipping = true }: OrderSummaryProps) {
-  // No carrinho (sem frete), o total mostrado é subtotal - desconto
   const displayTotal = showShipping ? totals.total : totals.subtotal - totals.discount;
 
   return (
@@ -26,20 +25,15 @@ export function OrderSummary({ totals, couponCode, showShipping = true }: OrderS
         </div>
       )}
 
-      {showShipping ? (
+      {showShipping && (
         <div className="flex justify-between text-sm">
           <span className="text-carvao/60">Frete</span>
           <span>{totals.shipping === 0 ? <span className="font-medium text-green-600">Grátis</span> : formatCurrency(totals.shipping)}</span>
         </div>
-      ) : (
-        <div className="flex justify-between text-sm">
-          <span className="text-carvao/60">Frete</span>
-          <span className="text-xs text-carvao/40">calculado no checkout</span>
-        </div>
       )}
 
       <div className="flex items-baseline justify-between border-t border-rosa-100 pt-3">
-        <span className="font-medium">Total{!showShipping ? ' (sem frete)' : ''}</span>
+        <span className="font-medium">Total</span>
         <span className="font-display text-2xl font-semibold text-rosa-500">{formatCurrency(displayTotal)}</span>
       </div>
       <p className="text-right text-xs text-carvao/40">
