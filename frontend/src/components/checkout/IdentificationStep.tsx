@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/getErrorMessage';
 import { useState } from 'react';
 import { User, LogIn, UserPlus, Check } from 'lucide-react';
 import { useAuth } from '@/store/auth';
@@ -56,7 +57,7 @@ export function IdentificationStep({ value, onChange, onValid }: IdentificationS
     try {
       await login(value.email, password);
     } catch (err) {
-      setError((err as Error).message);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -69,7 +70,7 @@ export function IdentificationStep({ value, onChange, onValid }: IdentificationS
     try {
       await register({ name: value.name, email: value.email, password, phone: value.phone });
     } catch (err) {
-      setError((err as Error).message);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

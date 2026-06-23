@@ -23,7 +23,15 @@ export function LoginPage() {
       }
       navigate('/conta');
     } catch (err) {
-      setError((err as Error).message);
+      // Extrai a mensagem legível (axios aninha o erro em response.data)
+      const ax = err as any;
+      const msg =
+        ax?.response?.data?.error?.message ||
+        ax?.response?.data?.message ||
+        ax?.response?.data?.error ||
+        (err instanceof Error ? err.message : null) ||
+        'Não foi possível entrar. Verifique seus dados e tente novamente.';
+      setError(typeof msg === 'string' ? msg : 'Não foi possível entrar. Tente novamente.');
     } finally {
       setLoading(false);
     }
