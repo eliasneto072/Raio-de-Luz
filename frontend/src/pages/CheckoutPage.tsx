@@ -4,7 +4,7 @@ import { ChevronLeft, MapPin, CreditCard, Check } from 'lucide-react';
 import { useCart } from '@/store/cart';
 import { useCoupon } from '@/store/coupon';
 import { useAuth } from '@/store/auth';
-import { calcTotals, calcSubtotal } from '@/lib/cart';
+import { calcTotals } from '@/lib/cart';
 import { formatCurrency } from '@/lib/format';
 import { lookupCep, maskCep } from '@/lib/cep';
 import { OrderSummary } from '@/components/ui/OrderSummary';
@@ -28,7 +28,6 @@ export function CheckoutPage() {
   const { coupon, clear: clearCoupon } = useCoupon();
   const createOrder = useCreateOrder();
 
-  const subtotal = calcSubtotal(items);
   const baseTotals = calcTotals(items, coupon?.discount ?? 0);
 
   const [ident, setIdent] = useState<Identification>({

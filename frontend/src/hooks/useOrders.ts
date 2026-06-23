@@ -17,6 +17,8 @@ export interface CreateOrderInput {
   };
   paymentMethod: PaymentMethod;
   couponCode?: string;
+  shippingCost?: number;
+  shippingMethod?: string;
   notes?: string;
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Pencil, Trash2, Ticket, X, Loader2 } from 'lucide-react';
 import {
   useAdminCoupons, useCreateCoupon, useUpdateCoupon, useDeleteCoupon,

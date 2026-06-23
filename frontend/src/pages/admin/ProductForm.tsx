@@ -3,7 +3,7 @@ import { X, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useCategories } from '@/hooks/useProducts';
 import { useCreateProduct, useUpdateProduct, useProductById, type ProductFormData } from '@/hooks/useAdmin';
 import { ImageUploader } from '@/components/ui/ImageUploader';
-import type { Product } from '@/types';
+import type { Product, ProductStatus } from '@/types';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -142,7 +142,7 @@ function ProductFormInner({ product, onClose, onSaved }: ProductFormProps) {
             </label>
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-carvao/80">Status</span>
-              <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as ProductStatus }))}
                 className="w-full rounded-lg border border-carvao/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-rosa-500">
                 <option value="ACTIVE">Ativo</option>
                 <option value="DRAFT">Rascunho</option>
