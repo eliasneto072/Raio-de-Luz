@@ -12,9 +12,9 @@ export function Logo({ className, variant = 'text' }: LogoProps) {
     return (
       <Link to="/" className={clsx('inline-block', className)} aria-label="Raio de Luz — página inicial">
         <img
-          src="/brand/logo-raio-de-luz.jpg"
+          src="/brand/logo-redonda.png"
           alt="Raio de Luz"
-          className="h-12 w-auto rounded-lg object-cover"
+          className="h-12 w-auto rounded-full object-cover"
         />
       </Link>
     );
