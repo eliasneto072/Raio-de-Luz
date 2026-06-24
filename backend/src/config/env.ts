@@ -30,6 +30,7 @@ export const env = {
   // Mercado Pago (Checkout Pro)
   MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN || '',
   MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY || '',
+  MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET || '',
 
   // Melhor Envio (cálculo de frete)
   MELHOR_ENVIO_TOKEN: process.env.MELHOR_ENVIO_TOKEN || '',
