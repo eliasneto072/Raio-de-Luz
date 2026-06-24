@@ -272,6 +272,7 @@ model Order {
   customerName      String
   customerEmail     String
   customerPhone     String?
+  customerDocument  String?           // CPF do cliente (necessário para PIX)
 
   // Endereço de entrega
   addressId         String?

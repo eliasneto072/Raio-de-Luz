@@ -59,6 +59,21 @@ export const paymentService = {
       payer: {
         name: order.customerName,
         email: order.customerEmail,
+        ...(order.customerDocument
+          ? {
+              identification: {
+                type: 'CPF',
+                number: order.customerDocument.replace(/\D/g, ''),
+              },
+            }
+          : {}),
+      },
+      // Habilita todos os métodos (PIX, cartão, boleto) sem exclusões.
+      // installments: parcelamento máximo no cartão.
+      payment_methods: {
+        excluded_payment_types: [],
+        excluded_payment_methods: [],
+        installments: 6,
       },
       back_urls: {
         success: `${env.FRONTEND_URL}/pedido/${order.id}?status=sucesso`,
