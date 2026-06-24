@@ -8,7 +8,8 @@ export function HomePage() {
   const featured = useFeaturedProducts();
   const novidades = useNewProducts();
   const categorias = useCategories();
-  const { heroEyebrow, heroTitle } = useSiteTexts((s) => s.texts);
+  const texts = useSiteTexts((s) => s.texts);
+  const { heroEyebrow, heroTitle } = texts;
 
   return (
     <>
@@ -55,9 +56,9 @@ export function HomePage() {
       <section className="border-b border-rosa-100 bg-creme">
         <div className="container-rl grid gap-6 py-10 sm:grid-cols-3">
           {[
-            ['Frete grátis', 'Acima de R$ 250'],
-            ['Parcele em 6x', 'Sem juros'],
-            ['Troca fácil', 'Até 30 dias'],
+            [texts.badge1Title, texts.badge1Sub],
+            [texts.badge2Title, texts.badge2Sub],
+            [texts.badge3Title, texts.badge3Sub],
           ].map(([title, sub]) => (
             <div key={title} className="text-center">
               <p className="font-display text-lg font-semibold text-rosa-500">{title}</p>
@@ -120,16 +121,16 @@ export function HomePage() {
       <section className="container-rl py-16">
         <div className="overflow-hidden rounded-xl2 bg-carvao px-8 py-12 text-center sm:px-16 sm:py-16">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dourado-300">
-            ✦ Primeira compra
+            ✦ {texts.couponEyebrow}
           </p>
           <h2 className="mt-3 font-display text-3xl font-semibold text-creme sm:text-4xl">
-            Ganhe 10% de desconto
+            {texts.couponTitle}
           </h2>
           <p className="mt-3 text-creme/70">
-            Use o cupom <span className="font-semibold text-dourado-300">BEMVINDA10</span> em compras acima de R$ 100.
+            {texts.couponText}
           </p>
           <Link to="/produtos" className="btn-gold mt-8">
-            Quero aproveitar
+            {texts.couponButton}
           </Link>
         </div>
       </section>

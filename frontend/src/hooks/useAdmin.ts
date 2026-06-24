@@ -210,6 +210,16 @@ export interface SiteTexts {
   announcementBar: string;
   heroEyebrow: string;
   heroTitle: string;
+  badge1Title: string;
+  badge1Sub: string;
+  badge2Title: string;
+  badge2Sub: string;
+  badge3Title: string;
+  badge3Sub: string;
+  couponEyebrow: string;
+  couponTitle: string;
+  couponText: string;
+  couponButton: string;
 }
 
 export function useSiteTextsAdmin() {

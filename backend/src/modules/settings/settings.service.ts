@@ -13,6 +13,18 @@ export interface SiteTexts {
   announcementBar: string;  // barra do topo
   heroEyebrow: string;      // "Nova Coleção"
   heroTitle: string;        // título principal do hero
+  // Selos (3 blocos da home)
+  badge1Title: string;
+  badge1Sub: string;
+  badge2Title: string;
+  badge2Sub: string;
+  badge3Title: string;
+  badge3Sub: string;
+  // Banner do cupom
+  couponEyebrow: string;
+  couponTitle: string;
+  couponText: string;
+  couponButton: string;
 }
 
 const DEFAULT: FreeShippingConfig = {
@@ -25,6 +37,16 @@ const DEFAULT_TEXTS: SiteTexts = {
   announcementBar: 'Adicione itens ao carrinho e ganhe frete grátis · Parcele em até 6x sem juros',
   heroEyebrow: 'Nova Coleção',
   heroTitle: 'Outono / Inverno',
+  badge1Title: 'Frete grátis',
+  badge1Sub: 'Acima de R$ 250',
+  badge2Title: 'Parcele em 6x',
+  badge2Sub: 'Sem juros',
+  badge3Title: 'Troca fácil',
+  badge3Sub: 'Até 30 dias',
+  couponEyebrow: 'Primeira compra',
+  couponTitle: 'Ganhe 10% de desconto',
+  couponText: 'Use o cupom BEMVINDA10 em compras acima de R$ 100.',
+  couponButton: 'Quero aproveitar',
 };
 
 export const settingsService = {
@@ -71,6 +93,16 @@ export const settingsService = {
       announcementBar: String(texts.announcementBar || DEFAULT_TEXTS.announcementBar),
       heroEyebrow: String(texts.heroEyebrow || DEFAULT_TEXTS.heroEyebrow),
       heroTitle: String(texts.heroTitle || DEFAULT_TEXTS.heroTitle),
+      badge1Title: String(texts.badge1Title || DEFAULT_TEXTS.badge1Title),
+      badge1Sub: String(texts.badge1Sub || DEFAULT_TEXTS.badge1Sub),
+      badge2Title: String(texts.badge2Title || DEFAULT_TEXTS.badge2Title),
+      badge2Sub: String(texts.badge2Sub || DEFAULT_TEXTS.badge2Sub),
+      badge3Title: String(texts.badge3Title || DEFAULT_TEXTS.badge3Title),
+      badge3Sub: String(texts.badge3Sub || DEFAULT_TEXTS.badge3Sub),
+      couponEyebrow: String(texts.couponEyebrow || DEFAULT_TEXTS.couponEyebrow),
+      couponTitle: String(texts.couponTitle || DEFAULT_TEXTS.couponTitle),
+      couponText: String(texts.couponText || DEFAULT_TEXTS.couponText),
+      couponButton: String(texts.couponButton || DEFAULT_TEXTS.couponButton),
     };
     await prisma.storeSetting.upsert({
       where: { key: TEXTS_KEY },

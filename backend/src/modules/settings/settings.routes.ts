@@ -37,8 +37,7 @@ export function settingsRouter() {
 
   // Admin: salva os textos do site
   router.put('/admin/site-texts', authMiddleware, adminOnly, async (req, res) => {
-    const { announcementBar, heroEyebrow, heroTitle } = req.body;
-    const saved = await settingsService.setSiteTexts({ announcementBar, heroEyebrow, heroTitle });
+    const saved = await settingsService.setSiteTexts(req.body);
     ok(res, saved);
   });
 
