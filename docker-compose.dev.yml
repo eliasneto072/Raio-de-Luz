@@ -1,0 +1,65 @@
+# ===== Docker Compose — DESENVOLVIMENTO =====
+# Sobe banco + backend + frontend com hot-reload.
+# Uso:  docker compose -f docker-compose.dev.yml up
+
+services:
+  # ----- Banco de dados PostgreSQL -----
+  db:
+    image: postgres:16-alpine
+    container_name: raio_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: raio
+      POSTGRES_PASSWORD: raio123
+      POSTGRES_DB: raio_de_luz
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U raio -d raio_de_luz"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ----- Backend (API) -----
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: raio_backend_dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://raio:raio123@db:5432/raio_de_luz?schema=public"
+    env_file:
+      - ./backend/.env
+    ports:
+      - "3333:3333"
+    volumes:
+      # Hot-reload: o código local reflete no container
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+
+  # ----- Frontend (loja) -----
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: raio_frontend_dev
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: "http://localhost:3333/api"
+    ports:
+      - "5173:5173"
+    volumes:
+      # Hot-reload do frontend
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+
+volumes:
+  postgres_dev_data:

@@ -1,0 +1,59 @@
+# ===== Docker Compose — PRODUÇÃO =====
+# Sobe banco + backend (compilado) + frontend (Nginx).
+# Uso:  docker compose up -d --build
+#
+# IMPORTANTE: configure as variáveis no arquivo .env da raiz antes de subir.
+
+services:
+  # ----- Banco de dados PostgreSQL -----
+  db:
+    image: postgres:16-alpine
+    container_name: raio_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----- Backend (API compilada) -----
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: raio_backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
+    env_file:
+      - ./backend/.env
+    expose:
+      - "3333"
+
+  # ----- Frontend (Nginx servindo o build) -----
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Em produção, a API é acessada pelo mesmo domínio via /api
+        VITE_API_URL: "/api"
+    container_name: raio_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
