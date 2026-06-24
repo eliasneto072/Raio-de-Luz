@@ -5,7 +5,7 @@
 <!--  Substitua o caminho abaixo pela sua logo    -->
 <!-- ============================================ -->
 
-<img src="./frontend/public/brand/logo.png" alt="Raio de Luz" width="220" />
+<img src="./frontend/public/brand/logo-raio-de-luz.png" alt="Raio de Luz" width="220" />
 
 # Raio de Luz — E-commerce de Moda Feminina
 
