@@ -5,11 +5,11 @@ import { notificationService } from '../notifications/notifications.service';
 
 export class OrdersService {
   async create(input: any) {
-    const { items, customerName, customerEmail, customerPhone, addressData, paymentMethod, couponCode, shippingCost: shippingInput, shippingMethod, notes, userId } = input;
+    const { items, customerName, customerEmail, customerPhone, customerDocument, addressData, paymentMethod, couponCode, shippingCost: shippingInput, shippingMethod, notes, userId } = input;
 
     // Calcular subtotal
     let subtotal = 0;
-    const orderItems = [];
+    const orderItems: any[] = [];
 
     for (const item of items) {
       const variant = await prisma.productVariant.findUnique({
@@ -57,6 +57,7 @@ export class OrdersService {
           customerName,
           customerEmail,
           customerPhone,
+          customerDocument,
           paymentMethod,
           couponCode,
           notes,

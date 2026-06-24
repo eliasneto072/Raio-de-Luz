@@ -2,12 +2,12 @@ import { config } from 'dotenv';
 config();
 
 export const env = {
-  PORT: process.env.PORT,
+  PORT: parseInt(process.env.PORT || '3333'),
   API_URL: process.env.API_URL || `http://localhost:${process.env.PORT || '3333'}`,
-  DATABASE_URL: process.env.DATABASE_URL,
-  JWT_SECRET: process.env.JWT_SECRET,
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
-  NODE_ENV: process.env.NODE_ENV,
+  DATABASE_URL: process.env.DATABASE_URL || '',
+  JWT_SECRET: process.env.JWT_SECRET || 'raio-de-luz-dev-secret-troque-em-producao',
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
+  NODE_ENV: process.env.NODE_ENV || 'development',
 
   // Email (Nodemailer / SMTP)
   SMTP_HOST: process.env.SMTP_HOST,
@@ -41,5 +41,5 @@ export const env = {
   FRETE_GRATIS_TETO: process.env.FRETE_GRATIS_TETO || '30',
 
   // Frontend URL (para links em emails)
-  FRONTEND_URL: process.env.FRONTEND_URL,
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
 };

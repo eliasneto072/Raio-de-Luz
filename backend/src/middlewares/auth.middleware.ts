@@ -29,7 +29,7 @@ export const authMiddleware = (req: Request, _res: Response, next: NextFunction)
   if (tokenBlacklist.has(token)) throw new AppError('Token expirado', 401, 'TOKEN_EXPIRED');
 
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    const payload = jwt.verify(token, env.JWT_SECRET) as unknown as JwtPayload;
     req.user = { id: payload.sub, role: payload.role };
     next();
   } catch {
@@ -44,7 +44,7 @@ export const optionalAuth = (req: Request, _res: Response, next: NextFunction) =
   try {
     const [, token] = authorization.split(' ');
     if (token && !tokenBlacklist.has(token)) {
-      const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+      const payload = jwt.verify(token, env.JWT_SECRET) as unknown as JwtPayload;
       req.user = { id: payload.sub, role: payload.role };
     }
   } catch { /* silently ignore */ }

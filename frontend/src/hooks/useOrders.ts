@@ -7,6 +7,7 @@ export interface CreateOrderInput {
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
+  customerDocument?: string;
   addressData: {
     shippingStreet?: string;
     shippingNumber?: string;
