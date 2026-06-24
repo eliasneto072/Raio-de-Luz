@@ -25,7 +25,15 @@ export function CategoriesPage() {
               to={`/produtos?categoria=${cat.id}`}
               className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-xl2 bg-rosa-500 p-6 transition-transform hover:scale-[1.02]"
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-carvao/40 to-transparent" />
+              {/* Imagem de fundo da categoria (se houver) */}
+              {cat.imageUrl && (
+                <img
+                  src={cat.imageUrl}
+                  alt={cat.name}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-carvao/70 via-carvao/20 to-transparent" />
               <div className="relative">
                 <h2 className="font-display text-2xl font-semibold text-creme">{cat.name}</h2>
                 {cat.description && (
