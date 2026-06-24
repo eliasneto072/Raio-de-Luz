@@ -41,17 +41,22 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Nosso backend retorna { success: false, error: { message, code } }.
+    // É preciso pegar error.message (string), não error (que é objeto).
+    const data = error.response?.data;
     let message =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
+      data?.error?.message ||   // formato padrão da API (objeto error)
+      data?.message ||
+      (typeof data?.error === 'string' ? data.error : null) ||
       'Algo deu errado. Tente novamente.';
 
     // Em requests de download (blob), o corpo do erro vem como Blob — extrai o JSON
-    if (error.response?.data instanceof Blob && error.response.data.type === 'application/json') {
+    if (data instanceof Blob && data.type === 'application/json') {
       try {
-        const text = await error.response.data.text();
+        const text = await data.text();
         const parsed = JSON.parse(text);
-        message = parsed.message || parsed.error || message;
+        message = parsed?.error?.message || parsed?.message ||
+          (typeof parsed?.error === 'string' ? parsed.error : null) || message;
       } catch {
         /* mantém a mensagem padrão */
       }
