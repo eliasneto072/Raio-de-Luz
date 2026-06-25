@@ -29,8 +29,10 @@ function isValidSignature(req: any): boolean {
   const v1 = parts['v1'];
   if (!ts || !v1) return false;
 
-  // O template do manifest é definido pelo Mercado Pago
-  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+  // O template do manifest é definido pelo Mercado Pago.
+  // O data.id, se for alfanumérico, deve entrar em minúsculas (exigência do MP).
+  const dataIdNormalized = String(dataId).toLowerCase();
+  const manifest = `id:${dataIdNormalized};request-id:${requestId};ts:${ts};`;
   const hmac = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
 
   // Comparação segura contra timing attacks
