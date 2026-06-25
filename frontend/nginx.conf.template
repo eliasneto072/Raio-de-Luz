@@ -18,14 +18,15 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
-    # Encaminha chamadas /api para o backend (usado no Docker local).
-    # No Railway, o frontend chama a API direto pela VITE_API_URL, então
-    # este bloco não é usado — e o "resolver" + variável evita que o Nginx
-    # quebre na inicialização caso o host "backend" não exista.
+    # Encaminha /api para o backend (usado SÓ no Docker local).
+    # No Railway o frontend chama a API direto pela VITE_API_URL, então este
+    # bloco nunca é acessado lá. O "set" + "resolver" fazem o Nginx adiar a
+    # resolução do host "backend" para o momento da requisição, evitando que
+    # o Nginx quebre na inicialização caso o host não exista (no Railway).
     location /api/ {
-        resolver 127.0.0.11 valid=10s;
-        set $backend_host "backend";
-        proxy_pass http://$backend_host:3333/api/;
+        resolver 127.0.0.11 valid=30s;
+        set $upstream_backend backend;
+        proxy_pass http://$upstream_backend:3333$request_uri;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

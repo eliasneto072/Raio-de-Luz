@@ -23,15 +23,40 @@ export function ProductPage() {
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
 
-  // Cores e tamanhos únicos a partir das variantes
-  const colors = useMemo(
-    () => [...new Set(product?.variants?.map((v) => v.color).filter(Boolean) as string[])],
-    [product]
-  );
-  const sizes = useMemo(
-    () => [...new Set(product?.variants?.map((v) => v.size).filter(Boolean) as string[])],
-    [product]
-  );
+  // Normaliza um valor de cor/tamanho para comparação: remove espaços das
+  // pontas. Assim "Dourado" e "Dourado " (com espaço extra digitado sem querer
+  // no cadastro) são tratados como a MESMA opção, evitando cores duplicadas.
+  const norm = (v?: string | null) => (v ?? '').trim();
+
+  // Cores e tamanhos únicos a partir das variantes.
+  // Agrupa por valor normalizado, mas exibe o primeiro rótulo encontrado.
+  const colors = useMemo(() => {
+    const seen = new Map<string, string>(); // chave normalizada -> rótulo exibido
+    product?.variants?.forEach((v) => {
+      const label = norm(v.color);
+      if (label) {
+        const key = label.toLowerCase();
+        if (!seen.has(key)) seen.set(key, label);
+      }
+    });
+    return [...seen.values()];
+  }, [product]);
+
+  const sizes = useMemo(() => {
+    const seen = new Map<string, string>();
+    product?.variants?.forEach((v) => {
+      const label = norm(v.size);
+      if (label) {
+        const key = label.toLowerCase();
+        if (!seen.has(key)) seen.set(key, label);
+      }
+    });
+    return [...seen.values()];
+  }, [product]);
+
+  // Compara dois valores de cor/tamanho ignorando espaços e maiúsculas
+  const same = (a?: string | null, b?: string | null) =>
+    norm(a).toLowerCase() === norm(b).toLowerCase();
 
   // Pré-seleciona a primeira opção disponível
   useEffect(() => {
@@ -46,8 +71,8 @@ export function ProductPage() {
     if (!product?.variants) return undefined;
     return product.variants.find(
       (v) =>
-        (colors.length === 0 || v.color === color) &&
-        (sizes.length === 0 || v.size === size)
+        (colors.length === 0 || same(v.color, color)) &&
+        (sizes.length === 0 || same(v.size, size))
     );
   }, [product, color, size, colors, sizes]);
 
@@ -55,11 +80,11 @@ export function ProductPage() {
   const colorHasStock = useMemo(() => {
     return (c: string) => {
       const vars = product?.variants?.filter(
-        (v) => v.color === c && (sizes.length === 0 || !size || v.size === size)
+        (v) => same(v.color, c) && (sizes.length === 0 || !size || same(v.size, size))
       );
       // se não há variante para essa combinação, checa a cor em qualquer tamanho
       if (!vars || vars.length === 0) {
-        return product?.variants?.some((v) => v.color === c && v.stock > 0) ?? true;
+        return product?.variants?.some((v) => same(v.color, c) && v.stock > 0) ?? true;
       }
       return vars.some((v) => v.stock > 0);
     };
@@ -69,10 +94,10 @@ export function ProductPage() {
   const sizeHasStock = useMemo(() => {
     return (s: string) => {
       const vars = product?.variants?.filter(
-        (v) => v.size === s && (colors.length === 0 || !color || v.color === color)
+        (v) => same(v.size, s) && (colors.length === 0 || !color || same(v.color, color))
       );
       if (!vars || vars.length === 0) {
-        return product?.variants?.some((v) => v.size === s && v.stock > 0) ?? true;
+        return product?.variants?.some((v) => same(v.size, s) && v.stock > 0) ?? true;
       }
       return vars.some((v) => v.stock > 0);
     };
