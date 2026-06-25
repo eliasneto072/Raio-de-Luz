@@ -161,6 +161,22 @@ export class OrdersService {
     return updated;
   }
 
+  // Apaga um pedido e seus registros vinculados (itens e notificações).
+  // Usa uma transação: ou apaga tudo, ou nada (mantém o banco consistente).
+  // Atenção: operação irreversível — usada para limpar pedidos de teste.
+  async remove(id: string) {
+    const order = await this.getById(id); // lança erro 404 se não existir
+    await prisma.$transaction([
+      // Notificações desse pedido (orderId é opcional, mas apagamos por limpeza)
+      prisma.notification.deleteMany({ where: { orderId: id } }),
+      // Itens do pedido (precisam sair antes do pedido)
+      prisma.orderItem.deleteMany({ where: { orderId: id } }),
+      // Por fim, o pedido em si
+      prisma.order.delete({ where: { id } }),
+    ]);
+    return { id: order.id, deleted: true };
+  }
+
   async getStats(startDate?: Date, endDate?: Date) {
     const where: any = {};
     if (startDate || endDate) {

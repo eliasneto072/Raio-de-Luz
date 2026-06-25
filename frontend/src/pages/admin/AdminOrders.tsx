@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAdminOrders, useUpdateOrderStatus } from '@/hooks/useAdmin';
+import { useAdminOrders, useUpdateOrderStatus, useDeleteOrder } from '@/hooks/useAdmin';
 import { formatCurrency, formatDate } from '@/lib/format';
 import type { Order, OrderStatus } from '@/types';
 
@@ -27,7 +27,19 @@ export function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const { data, isLoading } = useAdminOrders({ status: statusFilter || undefined });
   const updateStatus = useUpdateOrderStatus();
+  const deleteOrder = useDeleteOrder();
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  // Exclui um pedido após confirmação (ação irreversível)
+  const handleDelete = (order: Order) => {
+    const code = order.id.slice(0, 8).toUpperCase();
+    const ok = window.confirm(
+      `Tem certeza que deseja EXCLUIR o pedido #${code}?\n\nEsta ação é permanente e não pode ser desfeita.`
+    );
+    if (ok) {
+      deleteOrder.mutate(order.id);
+    }
+  };
 
   const orders = data?.orders ?? [];
 
@@ -89,6 +101,14 @@ export function AdminOrders() {
                     className="text-sm text-rosa-500 hover:underline"
                   >
                     {expanded === order.id ? 'Ocultar' : 'Detalhes'}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(order)}
+                    disabled={deleteOrder.isPending}
+                    className="text-sm text-red-500 hover:underline disabled:opacity-50"
+                    title="Excluir pedido (permanente)"
+                  >
+                    Excluir
                   </button>
                 </div>
               </div>

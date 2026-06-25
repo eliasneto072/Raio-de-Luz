@@ -38,6 +38,17 @@ export function useUpdateOrderStatus() {
   });
 }
 
+export function useDeleteOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiDelete<{ id: string; deleted: boolean }>(`/orders/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'orders'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'stats'] });
+    },
+  });
+}
+
 // ---- Produtos (admin) ----
 export function useAdminProducts() {
   return useQuery({

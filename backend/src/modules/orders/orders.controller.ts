@@ -34,6 +34,9 @@ export const ordersController = {
     const { status, trackingCode } = req.body;
     ok(res, await ordersService.updateStatus(req.params.id, status, trackingCode));
   },
+  remove: async (req: Request, res: Response) => {
+    ok(res, await ordersService.remove(req.params.id));
+  },
   getStats: async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
     ok(res, await ordersService.getStats(
