@@ -1,0 +1,41 @@
+# Nginx — Raio de Luz (frontend)
+# Template: a porta vem da variável PORT (Railway injeta; local usa 80).
+
+server {
+    listen ${PORT};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Compressão (deixa o site mais rápido)
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 1000;
+
+    # SPA: qualquer rota desconhecida cai no index.html (React Router cuida)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Encaminha chamadas /api para o backend (usado no Docker local).
+    # No Railway, o frontend chama a API direto pela VITE_API_URL, então
+    # este bloco não é usado — e o "resolver" + variável evita que o Nginx
+    # quebre na inicialização caso o host "backend" não exista.
+    location /api/ {
+        resolver 127.0.0.11 valid=10s;
+        set $backend_host "backend";
+        proxy_pass http://$backend_host:3333/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Cache de assets estáticos
+    location ~* \.(js|css|png|jpg|jpeg|gif|svg|woff2?)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+}
