@@ -88,8 +88,11 @@ export class OrdersService {
       return created;
     });
 
-    // Enviar notificação
-    await notificationService.sendOrderConfirmation(order as any).catch(console.error);
+    // Envia a confirmação por email em segundo plano (não bloqueia a resposta).
+    // Se o email falhar ou demorar, o cliente segue para o pagamento na hora.
+    notificationService.sendOrderConfirmation(order as any).catch((err) => {
+      console.error('[email] falha ao enviar confirmação do pedido:', err?.message || err);
+    });
 
     return order;
   }

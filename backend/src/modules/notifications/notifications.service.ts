@@ -9,7 +9,15 @@ const transporter = nodemailer.createTransport({
   port: env.SMTP_PORT,
   secure: env.SMTP_PORT === 465,
   auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-});
+  // Força IPv4: alguns ambientes de nuvem (ex.: Railway) não alcançam o
+  // servidor SMTP por IPv6, o que deixava a conexão travada por minutos.
+  family: 4,
+  // Timeouts curtos: se o email não conectar rápido, falha em segundos
+  // (não trava o fluxo). O envio é best-effort e não bloqueia o pedido.
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
+} as any);
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
