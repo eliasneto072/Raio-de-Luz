@@ -37,7 +37,7 @@ export const paymentService = {
       currency_id: 'BRL',
     }));
 
-    // Frete e desconto entram como ajustes (se houver)
+    // Frete entra como um item adicional (se houver)
     const shipping = Number(order.shippingCost);
     if (shipping > 0) {
       items.push({
@@ -45,6 +45,20 @@ export const paymentService = {
         title: 'Frete',
         quantity: 1,
         unit_price: shipping,
+        currency_id: 'BRL',
+      });
+    }
+
+    // Desconto do cupom entra como um item de valor NEGATIVO, para o
+    // Mercado Pago abater do total. Sem isto, o cliente era cobrado o valor
+    // cheio mesmo tendo aplicado o cupom.
+    const discount = Number(order.discount);
+    if (discount > 0) {
+      items.push({
+        id: 'desconto',
+        title: order.couponCode ? `Desconto (${order.couponCode})` : 'Desconto',
+        quantity: 1,
+        unit_price: -discount,
         currency_id: 'BRL',
       });
     }
