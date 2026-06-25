@@ -1,30 +1,14 @@
-import nodemailer from 'nodemailer';
-import dns from 'node:dns';
+import { Resend } from 'resend';
 import { env } from '../../config/env';
 import { prisma } from '../../config/prisma';
 import { NotificationType, NotificationChannel } from '@prisma/client';
 import axios from 'axios';
 
-// Faz o Node priorizar IPv4 ao resolver nomes (ex.: smtp.gmail.com).
-// Alguns ambientes de nuvem (como o Railway) não têm rota IPv6, e sem isto
-// o envio de email falhava com "ENETUNREACH" tentando um endereço IPv6.
-// Esta é a forma confiável de forçar IPv4 (o "family: 4" do nodemailer
-// sozinho nem sempre é respeitado na etapa de resolução DNS).
-dns.setDefaultResultOrder('ipv4first');
-
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_PORT === 465,
-  auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-  // Reforço: pede IPv4 também no nível da conexão do nodemailer.
-  family: 4,
-  // Timeouts curtos: se o email não conectar rápido, falha em segundos
-  // (não trava o fluxo). O envio é best-effort e não bloqueia o pedido.
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-} as any);
+// Cliente do Resend (envio de email por API HTTPS).
+// Usamos o Resend porque o Railway bloqueia as portas de SMTP nos planos
+// Hobby/grátis — então o nodemailer com Gmail dava timeout. A API do Resend
+// usa HTTPS (porta 443), que não é bloqueada.
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -71,12 +55,27 @@ const baseEmailTemplate = (content: string) => `
 
 export class NotificationService {
   private async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-    if (!env.SMTP_USER) return false;
+    // Sem a chave do Resend configurada, não tenta enviar (evita erro em dev).
+    if (!resend) {
+      console.warn('[email] RESEND_API_KEY não configurada — email não enviado.');
+      return false;
+    }
     try {
-      await transporter.sendMail({ from: env.EMAIL_FROM, to, subject, html });
+      const { error } = await resend.emails.send({
+        from: env.EMAIL_FROM,
+        to,
+        subject,
+        html,
+        // Respostas dos clientes caem no email real da loja (se configurado)
+        ...(env.EMAIL_REPLY_TO ? { replyTo: env.EMAIL_REPLY_TO } : {}),
+      });
+      if (error) {
+        console.error('[email] falha ao enviar:', error);
+        return false;
+      }
       return true;
-    } catch (err) {
-      console.error('[EMAIL ERROR]', err);
+    } catch (err: any) {
+      console.error('[email] erro inesperado:', err?.message || err);
       return false;
     }
   }

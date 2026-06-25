@@ -15,6 +15,9 @@ export const env = {
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
   EMAIL_FROM: process.env.EMAIL_FROM || '"Raio de Luz" <contato@raiodeluz.com>',
+  // Resend (envio de email por API HTTPS — funciona onde o SMTP é bloqueado)
+  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
+  EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO || '',
 
   // WhatsApp (Evolution API / Z-API / etc)
   WHATSAPP_API_URL: process.env.WHATSAPP_API_URL || '',
