@@ -114,10 +114,10 @@ export class NotificationService {
         <div class="total-row"><span>Total</span><span>${formatCurrency(Number(order.total))}</span></div>
       </div>
       <p>Você receberá uma notificação quando seu pedido for enviado.</p>
-      <a href="${env.FRONTEND_URL}/pedidos/${order.id}" class="btn">Acompanhar pedido</a>
+      <a href="${env.FRONTEND_URL}/pedido/${order.id}" class="btn">Acompanhar pedido</a>
     `);
 
-    const whatsappMsg = `✨ *Raio de Luz — Pedido Confirmado!*\n\nOlá ${order.customerName}! 🌟\n\nSeu pedido *#${order.id.slice(-8).toUpperCase()}* foi confirmado!\n\n💰 Total: *${formatCurrency(Number(order.total))}*\n\nAcompanhe em: ${env.FRONTEND_URL}/pedidos/${order.id}\n\nQualquer dúvida, fale conosco aqui no WhatsApp. ❤️`;
+    const whatsappMsg = `✨ *Raio de Luz — Pedido Confirmado!*\n\nOlá ${order.customerName}! 🌟\n\nSeu pedido *#${order.id.slice(-8).toUpperCase()}* foi confirmado!\n\n💰 Total: *${formatCurrency(Number(order.total))}*\n\nAcompanhe em: ${env.FRONTEND_URL}/pedido/${order.id}\n\nQualquer dúvida, fale conosco aqui no WhatsApp. ❤️`;
 
     const [emailOk, waOk] = await Promise.all([
       this.sendEmail(order.customerEmail, '✨ Pedido confirmado — Raio de Luz', emailHtml),
@@ -143,10 +143,10 @@ export class NotificationService {
       <h2>Seu pedido saiu para entrega! 🚚</h2>
       <p>Olá, <strong>${order.customerName}</strong>! Seu pedido foi enviado e está a caminho!</p>
       ${trackingCode ? `<div class="order-box"><div class="order-id">Código de rastreio</div><p style="font-size:18px;font-weight:600;color:#1a1a2e;margin:8px 0">${trackingCode}</p></div>` : ''}
-      <a href="${env.FRONTEND_URL}/pedidos/${order.id}" class="btn">Rastrear pedido</a>
+      <a href="${env.FRONTEND_URL}/pedido/${order.id}" class="btn">Rastrear pedido</a>
     `);
 
-    const whatsappMsg = `🚚 *Raio de Luz — Pedido Enviado!*\n\nOlá ${order.customerName}!\n\nSeu pedido *#${order.id.slice(-8).toUpperCase()}* foi enviado! 📦\n\n${trackingCode ? `📍 Rastreio: *${trackingCode}*\n\n` : ''}Acompanhe em: ${env.FRONTEND_URL}/pedidos/${order.id}`;
+    const whatsappMsg = `🚚 *Raio de Luz — Pedido Enviado!*\n\nOlá ${order.customerName}!\n\nSeu pedido *#${order.id.slice(-8).toUpperCase()}* foi enviado! 📦\n\n${trackingCode ? `📍 Rastreio: *${trackingCode}*\n\n` : ''}Acompanhe em: ${env.FRONTEND_URL}/pedido/${order.id}`;
 
     await Promise.all([
       this.sendEmail(order.customerEmail, '🚚 Seu pedido foi enviado — Raio de Luz', emailHtml),
