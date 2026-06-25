@@ -1,16 +1,23 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 import { env } from '../../config/env';
 import { prisma } from '../../config/prisma';
 import { NotificationType, NotificationChannel } from '@prisma/client';
 import axios from 'axios';
+
+// Faz o Node priorizar IPv4 ao resolver nomes (ex.: smtp.gmail.com).
+// Alguns ambientes de nuvem (como o Railway) não têm rota IPv6, e sem isto
+// o envio de email falhava com "ENETUNREACH" tentando um endereço IPv6.
+// Esta é a forma confiável de forçar IPv4 (o "family: 4" do nodemailer
+// sozinho nem sempre é respeitado na etapa de resolução DNS).
+dns.setDefaultResultOrder('ipv4first');
 
 const transporter = nodemailer.createTransport({
   host: env.SMTP_HOST,
   port: env.SMTP_PORT,
   secure: env.SMTP_PORT === 465,
   auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-  // Força IPv4: alguns ambientes de nuvem (ex.: Railway) não alcançam o
-  // servidor SMTP por IPv6, o que deixava a conexão travada por minutos.
+  // Reforço: pede IPv4 também no nível da conexão do nodemailer.
   family: 4,
   // Timeouts curtos: se o email não conectar rápido, falha em segundos
   // (não trava o fluxo). O envio é best-effort e não bloqueia o pedido.
