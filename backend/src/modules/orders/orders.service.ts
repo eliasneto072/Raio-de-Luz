@@ -169,9 +169,20 @@ export class OrdersService {
       if (endDate) where.createdAt.lte = endDate;
     }
 
+    // Status que contam como RECEITA: só pedidos efetivamente pagos.
+    // Inclui PAID e os status seguintes (um pedido pago que já foi preparado/
+    // enviado/entregue também já foi pago). Exclui PENDING e CONFIRMED (ainda
+    // não pagos) e CANCELED.
+    const paidStatuses = [
+      OrderStatus.PAID,
+      OrderStatus.PREPARING,
+      OrderStatus.SHIPPED,
+      OrderStatus.DELIVERED,
+    ];
+
     const [totalOrders, revenue, ordersByStatus, topProducts, recentOrders] = await Promise.all([
       prisma.order.count({ where }),
-      prisma.order.aggregate({ where: { ...where, status: { notIn: [OrderStatus.CANCELED] } }, _sum: { total: true } }),
+      prisma.order.aggregate({ where: { ...where, status: { in: paidStatuses } }, _sum: { total: true } }),
       prisma.order.groupBy({ by: ['status'], where, _count: true }),
       prisma.orderItem.groupBy({
         by: ['productId', 'productName'],
@@ -180,9 +191,9 @@ export class OrdersService {
         orderBy: { _sum: { totalPrice: 'desc' } },
         take: 5,
       }),
-      // Pedidos recentes (não-cancelados) para montar a série diária em memória
+      // Pedidos PAGOS para montar a série diária de receita em memória
       prisma.order.findMany({
-        where: { ...where, status: { notIn: [OrderStatus.CANCELED] } },
+        where: { ...where, status: { in: paidStatuses } },
         select: { createdAt: true, total: true },
         orderBy: { createdAt: 'desc' },
         take: 500,
