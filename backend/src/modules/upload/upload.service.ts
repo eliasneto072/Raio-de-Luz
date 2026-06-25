@@ -30,7 +30,17 @@ export const uploadService = {
     if (hasCloudinary) {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: 'raio-de-luz/produtos', resource_type: 'image' },
+          {
+            folder: 'raio-de-luz/produtos',
+            resource_type: 'image',
+            // Otimização automática: limita o tamanho máximo (sem distorcer),
+            // ajusta a qualidade de forma inteligente e escolhe o melhor
+            // formato (ex.: WebP). Deixa a loja leve mesmo com fotos grandes.
+            transformation: [
+              { width: 1600, height: 1600, crop: 'limit' },
+              { quality: 'auto', fetch_format: 'auto' },
+            ],
+          },
           (err, result) => {
             if (err || !result) return reject(err || new Error('Falha no upload'));
             resolve(result.secure_url);
