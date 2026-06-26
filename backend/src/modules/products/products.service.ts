@@ -3,12 +3,21 @@ import { prisma } from '../../config/prisma';
 import { ProductStatus } from '@prisma/client';
 
 export class ProductsService {
-  async list(filters?: { categoryId?: string; search?: string; featured?: boolean; page?: number; limit?: number }) {
+  async list(filters?: { categoryId?: string; search?: string; featured?: boolean; status?: string; page?: number; limit?: number }) {
     const page = filters?.page || 1;
     const limit = filters?.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: any = { status: ProductStatus.ACTIVE };
+    const where: any = {};
+    // Por padrão, a loja mostra só produtos ativos. O admin pode pedir outro
+    // status (ex.: DRAFT para ver rascunhos) ou 'all' para ver todos.
+    if (filters?.status === 'all') {
+      // sem filtro de status — mostra todos
+    } else if (filters?.status) {
+      where.status = filters.status;
+    } else {
+      where.status = ProductStatus.ACTIVE;
+    }
     if (filters?.categoryId) where.categoryId = filters.categoryId;
     if (filters?.featured) where.isFeatured = true;
     if (filters?.search) {
@@ -66,6 +75,33 @@ export class ProductsService {
       },
       include: { images: true, variants: { orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] }, category: true },
     });
+  }
+
+  // Cria um produto RASCUNHO (DRAFT) para cada imagem enviada.
+  // Usado no cadastro em massa: a pessoa sobe várias fotos de uma vez e o
+  // sistema gera um rascunho por foto (nome temporário, preço 0). Depois ela
+  // preenche os dados de cada rascunho. Rascunhos não aparecem na loja.
+  async createDraftsFromImages(imageUrls: string[]) {
+    const created = [];
+    for (let i = 0; i < imageUrls.length; i++) {
+      const url = imageUrls[i];
+      // Nome temporário único (a pessoa renomeia depois)
+      const tempName = `Rascunho ${Date.now()}-${i + 1}`;
+      const slug = tempName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const product = await prisma.product.create({
+        data: {
+          name: tempName,
+          slug,
+          status: 'DRAFT',
+          basePrice: 0,
+          coverImage: url,
+          images: { create: [{ imageUrl: url, position: 0 }] },
+        },
+        include: { images: true, variants: true, category: true },
+      });
+      created.push(product);
+    }
+    return created;
   }
 
   async update(id: string, data: any) {

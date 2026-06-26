@@ -57,6 +57,25 @@ export function useAdminProducts() {
   });
 }
 
+// Lista os rascunhos (produtos DRAFT) — usado no cadastro em massa
+export function useDraftProducts() {
+  return useQuery({
+    queryKey: ['admin', 'products', 'drafts'],
+    queryFn: () => apiGet<Paginated<Product>>('/products', { status: 'DRAFT', limit: 100 }),
+  });
+}
+
+// Cria vários rascunhos a partir das URLs das imagens enviadas
+export function useCreateDrafts() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (imageUrls: string[]) => apiPost<Product[]>('/products/drafts', { imageUrls }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'products'] });
+    },
+  });
+}
+
 export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({

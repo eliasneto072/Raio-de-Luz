@@ -4,11 +4,12 @@ import { ok, created, noContent } from '../../shared/http/response';
 
 export const productsController = {
   list: async (req: Request, res: Response) => {
-    const { categoryId, search, featured, page, limit } = req.query;
+    const { categoryId, search, featured, status, page, limit } = req.query;
     const result = await productsService.list({
       categoryId: categoryId as string,
       search: search as string,
       featured: featured === 'true',
+      status: status as string,
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 20,
     });
@@ -22,6 +23,10 @@ export const productsController = {
   },
   create: async (req: Request, res: Response) => {
     created(res, await productsService.create(req.body));
+  },
+  createDrafts: async (req: Request, res: Response) => {
+    const { imageUrls } = req.body;
+    created(res, await productsService.createDraftsFromImages(imageUrls || []));
   },
   update: async (req: Request, res: Response) => {
     ok(res, await productsService.update(req.params.id, req.body));

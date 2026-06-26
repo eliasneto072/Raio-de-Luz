@@ -14,6 +14,7 @@ import { AdminLayout } from '@/pages/admin/AdminLayout';
 import { AdminDashboard } from '@/pages/admin/AdminDashboard';
 import { AdminOrders } from '@/pages/admin/AdminOrders';
 import { AdminProducts } from '@/pages/admin/AdminProducts';
+import { AdminBulkProducts } from '@/pages/admin/AdminBulkProducts';
 import { AdminCategories } from '@/pages/admin/AdminCategories';
 import { AdminCoupons } from '@/pages/admin/AdminCoupons';
 import { AdminShipping } from '@/pages/admin/AdminShipping';
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: 'pedidos', element: <AdminOrders /> },
       { path: 'produtos', element: <AdminProducts /> },
+      { path: 'produtos/massa', element: <AdminBulkProducts /> },
       { path: 'categorias', element: <AdminCategories /> },
       { path: 'cupons', element: <AdminCoupons /> },
       { path: 'frete', element: <AdminShipping /> },

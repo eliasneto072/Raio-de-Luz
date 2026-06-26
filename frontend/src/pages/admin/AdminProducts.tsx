@@ -52,6 +52,9 @@ export function AdminProducts() {
               className="bg-transparent px-2 py-2 text-sm outline-none"
             />
           </div>
+          <Link to="/admin/produtos/massa" className="inline-flex items-center gap-2 rounded-full border border-rosa-500 px-4 py-2 text-sm font-medium text-rosa-500 hover:bg-rosa-50">
+            <Plus className="h-4 w-4" /> Cadastro em massa
+          </Link>
           <button onClick={openNew} className="btn-primary">
             <Plus className="h-4 w-4" /> Novo produto
           </button>

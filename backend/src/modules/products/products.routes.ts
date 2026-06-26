@@ -14,6 +14,7 @@ export function productsRouter() {
 
   // Admin
   router.post('/', authMiddleware, adminOnly, productsController.create);
+  router.post('/drafts', authMiddleware, adminOnly, productsController.createDrafts);
   router.patch('/:id', authMiddleware, adminOnly, productsController.update);
   router.delete('/:id', authMiddleware, adminOnly, productsController.delete);
 
