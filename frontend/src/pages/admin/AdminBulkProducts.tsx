@@ -40,8 +40,26 @@ export function AdminBulkProducts() {
   // Etapa 2: índice do rascunho que está sendo preenchido
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Formulário do rascunho atual
-  const [form, setForm] = useState({ name: '', description: '', basePrice: '', salePrice: '', categoryId: '' });
+  // Converte preço digitado para número, aceitando vírgula (padrão BR).
+  // "235,90" → 235.90 ; "1.299,90" → 1299.90 ; "235" → 235
+  const parsePrice = (v: string): number => {
+    if (!v) return NaN;
+    // remove separador de milhar (.) e troca a vírgula decimal por ponto
+    const normalized = v.trim().replace(/\./g, '').replace(',', '.');
+    return Number(normalized);
+  };
+
+  // Formulário do rascunho atual (mesmos campos do cadastro normal)
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    details: '',
+    basePrice: '',
+    salePrice: '',
+    categoryId: '',
+    isFeatured: false,
+    isNew: true,
+  });
   const [variants, setVariants] = useState<VariantRow[]>([{ color: '', size: '', price: '', stock: '' }]);
   const [lastVariants, setLastVariants] = useState<VariantRow[] | null>(null);
   const [saving, setSaving] = useState(false);
@@ -71,9 +89,12 @@ export function AdminBulkProducts() {
     setForm({
       name: draft.name.startsWith('Rascunho ') ? '' : draft.name,
       description: draft.description ?? '',
+      details: draft.details ?? '',
       basePrice: draft.basePrice ? String(draft.basePrice) : '',
       salePrice: draft.salePrice != null ? String(draft.salePrice) : '',
       categoryId: draft.categoryId ?? '',
+      isFeatured: draft.isFeatured ?? false,
+      isNew: draft.isNew ?? true,
     });
     // Reaproveita as variantes do produto anterior (acelera o preenchimento)
     setVariants(lastVariants ? lastVariants.map((v) => ({ ...v })) : [{ color: '', size: '', price: '', stock: '' }]);
@@ -87,8 +108,14 @@ export function AdminBulkProducts() {
       setError('Dê um nome ao produto.');
       return;
     }
-    if (!form.basePrice || Number(form.basePrice) <= 0) {
-      setError('Informe um preço válido.');
+    const basePriceNum = parsePrice(form.basePrice);
+    if (!form.basePrice || isNaN(basePriceNum) || basePriceNum <= 0) {
+      setError('Informe um preço válido (ex: 235,90).');
+      return;
+    }
+    const salePriceNum = form.salePrice ? parsePrice(form.salePrice) : null;
+    if (form.salePrice && (salePriceNum === null || isNaN(salePriceNum))) {
+      setError('O preço promocional não é válido.');
       return;
     }
     setSaving(true);
@@ -99,7 +126,7 @@ export function AdminBulkProducts() {
         .map((v) => ({
           color: v.color || undefined,
           size: v.size || undefined,
-          price: v.price ? Number(v.price) : Number(form.basePrice),
+          price: v.price ? parsePrice(v.price) : basePriceNum,
           stock: v.stock ? Number(v.stock) : 0,
         }));
       await updateProduct.mutateAsync({
@@ -107,9 +134,12 @@ export function AdminBulkProducts() {
         data: {
           name: form.name,
           description: form.description || undefined,
-          basePrice: Number(form.basePrice),
-          salePrice: form.salePrice ? Number(form.salePrice) : null,
+          details: form.details || undefined,
+          basePrice: basePriceNum,
+          salePrice: salePriceNum,
           categoryId: form.categoryId || undefined,
+          isFeatured: form.isFeatured,
+          isNew: form.isNew,
           status: 'ACTIVE',
           variants: validVariants.length ? validVariants : undefined,
         },
@@ -230,11 +260,11 @@ export function AdminBulkProducts() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-carvao/70">Preço *</label>
+                    <label className="mb-1 block text-xs font-medium text-carvao/70">Preço * (ex: 235,90)</label>
                     <input
                       value={form.basePrice}
                       onChange={(e) => setForm({ ...form, basePrice: e.target.value })}
-                      placeholder="0,00"
+                      placeholder="235,90"
                       inputMode="decimal"
                       className="w-full rounded-lg border border-carvao/15 px-3 py-2 text-sm"
                     />
@@ -274,6 +304,38 @@ export function AdminBulkProducts() {
                     placeholder="(opcional)"
                     className="w-full rounded-lg border border-carvao/15 px-3 py-2 text-sm"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-carvao/70">Composição / cuidados</label>
+                  <textarea
+                    value={form.details}
+                    onChange={(e) => setForm({ ...form, details: e.target.value })}
+                    rows={2}
+                    placeholder="(opcional) Ex: 100% algodão, lavar à mão"
+                    className="w-full rounded-lg border border-carvao/15 px-3 py-2 text-sm"
+                  />
+                </div>
+
+                <div className="flex items-center gap-5">
+                  <label className="flex items-center gap-2 text-sm text-carvao/80">
+                    <input
+                      type="checkbox"
+                      checked={form.isFeatured}
+                      onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })}
+                      className="h-4 w-4 rounded border-carvao/30 text-rosa-500"
+                    />
+                    Destaque
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-carvao/80">
+                    <input
+                      type="checkbox"
+                      checked={form.isNew}
+                      onChange={(e) => setForm({ ...form, isNew: e.target.checked })}
+                      className="h-4 w-4 rounded border-carvao/30 text-rosa-500"
+                    />
+                    Novidade
+                  </label>
                 </div>
 
                 {/* Variantes (reaproveitadas do produto anterior) */}
