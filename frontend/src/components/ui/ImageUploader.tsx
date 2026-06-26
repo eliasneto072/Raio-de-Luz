@@ -13,9 +13,20 @@ export function ImageUploader({ images, onChange, max = 6 }: ImageUploaderProps)
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const MAX_MB = 15;
+
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     setError(null);
+
+    // Valida o tamanho antes de enviar (mensagem clara, sem erro genérico)
+    const tooBig = Array.from(files).find((f) => f.size > MAX_MB * 1024 * 1024);
+    if (tooBig) {
+      setError(`A imagem "${tooBig.name}" passa de ${MAX_MB}MB. Use uma imagem menor.`);
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
+
     setUploading(true);
     try {
       const remaining = max - images.length;
@@ -96,7 +107,7 @@ export function ImageUploader({ images, onChange, max = 6 }: ImageUploaderProps)
 
       <p className="mt-2 text-xs text-carvao/40">
         <Upload className="mr-1 inline h-3 w-3" />
-        JPG, PNG ou WebP até 5MB. A primeira imagem é a capa.
+        JPG, PNG ou WebP até 15MB. A primeira imagem é a capa.
       </p>
       {error && <p className="mt-1 text-sm text-rosa-500">{error}</p>}
     </div>
