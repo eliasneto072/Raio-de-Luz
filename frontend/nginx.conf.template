@@ -8,6 +8,11 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Tamanho máximo de upload (imagens de produto/categoria podem ter até
+    # 15MB no app; deixamos 20MB de folga para o Nginx não ser o gargalo).
+    # Sem isto, o Nginx rejeita uploads grandes com "413 Request Too Large".
+    client_max_body_size 20M;
+
     # Compressão (deixa o site mais rápido)
     gzip on;
     gzip_types text/css application/javascript application/json image/svg+xml;
