@@ -92,9 +92,20 @@ export function HomePage() {
               <Link
                 key={cat.id}
                 to={`/produtos?categoria=${cat.id}`}
-                className="group flex aspect-square flex-col items-center justify-center rounded-xl2 bg-rosa-50 p-4 text-center transition-colors hover:bg-rosa-500"
+                className="group relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl2 bg-rosa-500 p-4 text-center transition-transform hover:scale-[1.03]"
               >
-                <span className="font-display text-lg font-semibold text-rosa-500 transition-colors group-hover:text-white">
+                {/* Imagem de fundo (quando a categoria tem imagem) */}
+                {cat.imageUrl && (
+                  <img
+                    src={cat.imageUrl}
+                    alt={cat.name}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                )}
+                {/* Gradiente escuro para o texto ficar legível sobre a foto */}
+                <div className="absolute inset-0 bg-gradient-to-t from-carvao/75 via-carvao/30 to-carvao/10" />
+                {/* Nome da categoria por cima */}
+                <span className="relative font-display text-lg font-semibold text-creme drop-shadow">
                   {cat.name}
                 </span>
               </Link>
