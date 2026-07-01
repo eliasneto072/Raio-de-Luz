@@ -75,7 +75,7 @@ export function HomePage() {
             <p className="eyebrow">Navegue por</p>
             <h2 className="mt-1 font-display text-3xl font-semibold">Categorias</h2>
           </div>
-          <Link to="/categorias" className="hidden items-center gap-1 text-sm font-medium text-rosa-500 hover:gap-2 sm:flex">
+          <Link to="/categorias" className="flex items-center gap-1 text-sm font-medium text-rosa-500 hover:gap-2">
             Ver todas <ArrowRight className="h-4 w-4 transition-all" />
           </Link>
         </div>
@@ -126,6 +126,13 @@ export function HomePage() {
           </Link>
         </div>
         <ProductGrid products={featured.data} loading={featured.isLoading} skeletonCount={4} />
+        {/* Botão "Ver mais" no celular (no desktop o link já fica no topo) */}
+        <Link
+          to="/produtos?destaque=1"
+          className="mt-6 flex items-center justify-center gap-1 rounded-full border border-rosa-500 py-3 text-sm font-medium text-rosa-500 transition-colors hover:bg-rosa-50 sm:hidden"
+        >
+          Ver mais destaques <ArrowRight className="h-4 w-4" />
+        </Link>
       </section>
 
       {/* Banner do cupom */}
@@ -158,6 +165,13 @@ export function HomePage() {
           </Link>
         </div>
         <ProductGrid products={novidades.data} loading={novidades.isLoading} skeletonCount={4} />
+        {/* Botão "Ver tudo" no celular (no desktop o link já fica no topo) */}
+        <Link
+          to="/produtos"
+          className="mt-6 flex items-center justify-center gap-1 rounded-full border border-rosa-500 py-3 text-sm font-medium text-rosa-500 transition-colors hover:bg-rosa-50 sm:hidden"
+        >
+          Ver todos os produtos <ArrowRight className="h-4 w-4" />
+        </Link>
       </section>
     </>
   );
